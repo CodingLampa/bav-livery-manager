@@ -131,8 +131,15 @@
     margin-bottom: 12px;
 }
 
-.developer {
-    color: var(--muted);
+.infoContainer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+}
+
+.infoButton {
+    color: #7dcff0;
     margin: 0;
     font-size: 14px;
 }
