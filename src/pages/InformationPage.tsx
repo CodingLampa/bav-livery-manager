@@ -2,7 +2,12 @@ import { useLiveryStore } from "@/store/liveryStore";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import ReturnButton from "@/components/ReturnButton";
+import styles from "@/pages/InformationPage.module.css"
 
+const DeveloperLogo = ({ developerName }: { developerName: string }) => {
+    const logoSrc = `public/${developerName}.png`;
+    return <img src={logoSrc} alt={`${developerName} logo`} className={styles.developerLogo} />;
+};
 
 export function InformationPage() {
     const { liveryId } = useParams();
@@ -29,8 +34,18 @@ export function InformationPage() {
             <div className="returnButton">
                 <ReturnButton />
             </div>
-            <h1>{selectedLivery.name}</h1>
-            <p>This is the information page of the livery with ID: {liveryId}.</p>
+            <div className={styles.headerSection}>
+                <div className={styles.textContainer}>
+                    <h1>{selectedLivery.name}</h1>
+                    <h3>
+                        {selectedLivery.aircraftProfileName} | {selectedLivery.categoryName} |{" "}
+                        {selectedLivery.engine} | {selectedLivery.year}
+                    </h3>
+                </div>
+                <div className={styles.devLogo}>
+                    <DeveloperLogo developerName={selectedLivery.developerName} />
+                </div>
+            </div>
         </div>
     );
 }

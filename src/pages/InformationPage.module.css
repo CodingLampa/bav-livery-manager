@@ -1,0 +1,37 @@
+.headerSection {
+    display: grid;
+    grid-template-columns: 1fr auto; 
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 4px 6px;
+    margin-top: 2%;
+}
+
+.headerSection h1 {
+    margin-bottom: 0;
+    margin-left: 12px;
+}
+
+.headerSection h3 {
+    margin-top: 1;
+    margin-left: 12px;
+    font-size: 15px;
+    font-weight: 300;
+    color: #a0a0a0;
+}
+
+.textContainer {
+  display: flex;
+  flex-direction: column;            /* keeps h1 and h3 stacked */
+}
+
+.devLogo {
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  align-self: center;
+  margin: 12px 12px;
+}

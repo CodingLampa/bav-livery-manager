@@ -3,12 +3,18 @@
     align-items: center;
     gap: 4px;
     border: 1px solid var(--border);
-    background: #3a3a3a;
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
     border-radius: 999px;
     padding: 6px 12px;
     font-size: 14px;
     font-weight: 400;
     cursor: pointer;
     transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.returnButton:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
 }
