@@ -9,8 +9,8 @@ function returnButton() {
     return (
         <div>
             <button className={styles.returnButton} onClick={() => navigate(-1)}>
-                <ArrowLeftCircle width={16} height={16} />
-                Back
+                <ArrowLeftCircle width={17} height={17} />
+                Go Back
             </button>
         </div>
     );
