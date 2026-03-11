@@ -38,8 +38,7 @@ export function InformationPage() {
                 <div className={styles.textContainer}>
                     <h1>{selectedLivery.name}</h1>
                     <h3>
-                        {selectedLivery.aircraftProfileName} | {selectedLivery.categoryName} |{" "}
-                        {selectedLivery.engine} | {selectedLivery.year}
+                        {selectedLivery.aircraftProfileName} | {selectedLivery.engine} | {selectedLivery.categoryName}
                     </h3>
                 </div>
                 <div className={styles.devLogo}>
@@ -47,15 +46,52 @@ export function InformationPage() {
                 </div>
             </div>
             <div className={styles.mainBody}>
-                <div className={styles.changesBox}>
-                    {/* Add livery details here – description, download link, etc. */}
-                    <p>Description</p>
-                </div> 
+                <div className={styles.realInfoBox}>
+                    <dl className={styles.meta}>
+                        <div>
+                            <dt className={styles.metaLabel}>Registration</dt>
+                            <dd className={styles.metaValue}>{selectedLivery.name ?? '—'}</dd>
+                        </div>
+                        <div>
+                            <dt className={styles.metaLabel}>MSN</dt>
+                        </div>
+                        <div>
+                            <dt className={styles.metaLabel}>SELCAL</dt>
+                        </div>
+                        <div>
+                            <dt className={styles.metaLabel}>Mode-S</dt>
+                        </div>
+                    </dl>
+                    <dl className={styles.metaSecond}>
+                        <div>
+                            <dt className={styles.metaLabel}>Manufacturer</dt>
+                        </div>
+                        <div>
+                            <dt className={styles.metaLabel}>Year Built</dt>
+                            <dd className={styles.metaValue}>{selectedLivery.year ?? '—'}</dd>
+                        </div>
+                        <div>
+                            <dt className={styles.metaLabel}>Delivery Date</dt>
+                        </div>
+                        <div>
+                            <dt className={styles.metaLabel}>Livery Name</dt>
+                        </div>
+                    </dl>
+                        <dl className={styles.metaThird}>
+                        <div>
+                            <button className={styles.plannerButtons}>FlightRadar24</button>
+                        </div>
+                        <div>
+                            <button className={styles.plannerButtons}>AirNavRadar</button>
+                        </div>    
+                    </dl>
+                </div>
                 <div className={styles.liveryBox}>
-                    <div className={styles.imageContainer}>
-                        <img src={selectedLivery.preview ?? ""} alt={`${selectedLivery.name} preview`} loading="lazy" />
-                    </div>
-                </div>                    
+                    <img src={selectedLivery.preview ?? ""} alt={`${selectedLivery.name} preview`} loading="lazy" />
+                </div>
+                <div className={styles.changesBox}>
+                    <h2>Changelog for {selectedLivery.version}</h2>
+                </div>
             </div>
         </div>
     );
