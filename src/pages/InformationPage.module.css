@@ -1,48 +1,54 @@
+.informationPage {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
 .headerSection {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    background: var(--card);
+    border-radius: 8px;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
     color: var(--text);
     border-radius: 8px;
-    padding: 4px 6px;
-    margin-top: 2%;
+    padding: 10px 16px;
 }
 
 .headerSection h1 {
     font-size: 32px;
-    margin-bottom: 0;
-    margin-left: 12px;
+    margin: 0;
 }
 
 .headerSection h3 {
-    margin-top: 1;
-    margin-left: 12px;
+    margin: 0;
     font-size: 15px;
-    font-weight: 300;
-    color: #a0a0a0;
+    font-weight: 400;
+    color: var(--muted);
 }
 
 .textContainer {
     display: flex;
     flex-direction: column;
+    gap: 4px;
+}
+
+.logoAndTitle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 .devLogo {
-    height: 80px;
-    width: 80px;
-    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    border-radius: 999px;
     overflow: hidden;
-    align-self: center;
-    margin: 12px 12px;
 }
 
 .mainBody {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 2fr));
-    gap: 10px 12px;
-    margin: 0 0 8px;
-    margin-top: 2%;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: stretch;
 }
 
 .mainBody h2 {
@@ -53,67 +59,55 @@
     color: #a0a0a0;
 }
 
-.realInfoBox {
-    grid-column: span 2;
+.informationContainer {
+    display: flex;
+    flex-direction: column;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--card);
     border-radius: 8px;
     padding: 12px;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.informationContainer p {
+    margin: 0;
+}
+
+.factsSheet {
+    display: grid;
+    grid-column: span 2;
+}
+
+.factsSheet dl {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 2fr));
+    gap: 10px 12px;
+    margin: 0 0 8px;
 }
 
 .liveryBox {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--card);
     border-radius: 8px;
 }
 
-.liveryBox img {
-    display: block;             
-    width: 100%;
-    height: 100%;
-    object-fit: cover;           
-    border-radius: inherit;      
-}
-
-.liveryBox {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
+.liveryPreview {
     border-radius: 8px;
+    max-width: 320px;
+    height: auto;
 }
 
 .changesBox {
     grid-column: span 2;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--card);
     border-radius: 8px;
     padding: 12px;
-}
-
-.meta {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 2fr));
-    gap: 10px 12px;
-    margin: 0 0 8px;
-}
-
-.metaSecond {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 2fr));
-    gap: 10px 12px;
-    margin: 20px 0 8px;
-}
-
-.metaThird {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 20px;
-    margin: 0 0 8px;
-    margin-top: 5%;
 }
 
 .metaLabel {
@@ -124,28 +118,44 @@
 
 .metaValue {
     font-size: 14px;
+    color: #e3e3e3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.plannerButtons {
+.buttonsContainer {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text);
-    border-radius: 999px;
-    padding: 8px 12px;
-    font-size: 16px;
-    font-weight: 400;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: rgba(255, 255, 255, 0.7);
+    justify-content: space-between;
 }
 
-.plannerButtons:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
+.radarButtonsGroup {
+    display: flex;
+    gap: 8px;
+}
+
+.radarButton {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.04); 
+    color: var(--text);
+    border-radius: 8px;
+    padding: 4px 12px 4px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.radarIcon {
+    margin: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+}
+
+.radarButton:hover {
+    background: #2a2a2a;
+    border-color: #ffffff;
 }

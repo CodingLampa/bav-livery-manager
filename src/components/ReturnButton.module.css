@@ -2,19 +2,20 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text);
-    border-radius: 999px;
     padding: 8px 12px;
-    font-size: 16px;
-    font-weight: 400;
-    cursor: pointer;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
     transition: all 0.2s ease;
-    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
 }
 
 .returnButton:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
+    background: #2a2a2a;
+    color: var(--text);
+    border-color: #ffffff;
 }

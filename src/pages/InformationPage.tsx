@@ -1,13 +1,8 @@
 import { useLiveryStore } from "@/store/liveryStore";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import ReturnButton from "@/components/ReturnButton";
+import { ReturnButton } from "@/components/ReturnButton";
 import styles from "@/pages/InformationPage.module.css"
-
-const DeveloperLogo = ({ developerName }: { developerName: string }) => {
-    const logoSrc = `public/${developerName}.png`;
-    return <img src={logoSrc} alt={`${developerName} logo`} />;
-};
 
 export function InformationPage() {
     const { liveryId } = useParams();
@@ -17,6 +12,8 @@ export function InformationPage() {
     const selectedLivery = useMemo(() => {
         return liveries.find(livery => livery.id === liveryId)
     }, [liveries, liveryId]);
+
+    const logoSrc = selectedLivery ? `${selectedLivery.developerName}.png` : "";
 
 
     // TODO: Show the error
@@ -30,67 +27,73 @@ export function InformationPage() {
     }
 
     return (
-        <div className="information-page">
-            <div className="returnButton">
-                <ReturnButton />
-            </div>
+        <div className={styles.informationPage}>
+            <ReturnButton />
             <div className={styles.headerSection}>
                 <div className={styles.textContainer}>
-                    <h1>{selectedLivery.name}</h1>
+                    <div className={styles.logoAndTitle}>
+                        <img className={styles.devLogo} src={logoSrc} alt={`${selectedLivery.developerName} logo`} />
+                        <h1>{selectedLivery.name}</h1>
+                    </div>
                     <h3>
                         {selectedLivery.aircraftProfileName} | {selectedLivery.engine} | {selectedLivery.categoryName}
                     </h3>
                 </div>
-                <div className={styles.devLogo}>
-                    <DeveloperLogo developerName={selectedLivery.developerName} />
-                </div>
             </div>
             <div className={styles.mainBody}>
-                <div className={styles.realInfoBox}>
-                    <dl className={styles.meta}>
-                        <div>
-                            <dt className={styles.metaLabel}>Registration</dt>
-                            <dd className={styles.metaValue}>{selectedLivery.name ?? '—'}</dd>
+                <div className={styles.informationContainer}>
+                    <p>Airframe details:</p>
+                    <div className={styles.factsSheet}>
+                        <dl>
+                            <div>
+                                <dt className={styles.metaLabel}>Registration</dt>
+                                <dd className={styles.metaValue}>{selectedLivery.name ?? '—'}</dd>
+                            </div>
+                            <div>
+                                <dt className={styles.metaLabel}>MSN</dt>
+                            </div>
+                            <div>
+                                <dt className={styles.metaLabel}>SELCAL</dt>
+                            </div>
+                            <div>
+                                <dt className={styles.metaLabel}>Mode-S</dt>
+                            </div>
+                        </dl>
+                        <dl>
+                            <div>
+                                <dt className={styles.metaLabel}>Manufacturer</dt>
+                            </div>
+                            <div>
+                                <dt className={styles.metaLabel}>Year Built</dt>
+                                <dd className={styles.metaValue}>{selectedLivery.year ?? '—'}</dd>
+                            </div>
+                            <div>
+                                <dt className={styles.metaLabel}>Delivery Date</dt>
+                            </div>
+                            <div>
+                                <dt className={styles.metaLabel}>Livery Name</dt>
+                            </div>
+                        </dl>
+                    </div>
+                    <div className={styles.buttonsContainer}>
+                        <div className={styles.radarButtonsGroup}>
+                            <button className={styles.radarButton}>
+                                <img className={styles.radarIcon} src="flightradar24.webp" alt="flightradar24 icon" />
+                                FlightRadar24
+                            </button>
+                            <button className={styles.radarButton}>
+                                <img className={styles.radarIcon} src="airnavradar.webp" alt="airnavradar icon" />
+                                AirNavRadar
+                            </button>
                         </div>
-                        <div>
-                            <dt className={styles.metaLabel}>MSN</dt>
-                        </div>
-                        <div>
-                            <dt className={styles.metaLabel}>SELCAL</dt>
-                        </div>
-                        <div>
-                            <dt className={styles.metaLabel}>Mode-S</dt>
-                        </div>
-                    </dl>
-                    <dl className={styles.metaSecond}>
-                        <div>
-                            <dt className={styles.metaLabel}>Manufacturer</dt>
-                        </div>
-                        <div>
-                            <dt className={styles.metaLabel}>Year Built</dt>
-                            <dd className={styles.metaValue}>{selectedLivery.year ?? '—'}</dd>
-                        </div>
-                        <div>
-                            <dt className={styles.metaLabel}>Delivery Date</dt>
-                        </div>
-                        <div>
-                            <dt className={styles.metaLabel}>Livery Name</dt>
-                        </div>
-                    </dl>
-                        <dl className={styles.metaThird}>
-                        <div>
-                            <button className={styles.plannerButtons}>FlightRadar24</button>
-                        </div>
-                        <div>
-                            <button className={styles.plannerButtons}>AirNavRadar</button>
-                        </div>    
-                    </dl>
+                        <button className={styles.radarButton}>
+                            <img className={styles.radarIcon} src="planespotters.webp" alt="planespotters icon" />
+                            PlaneSpotters
+                        </button>
+                    </div>
                 </div>
                 <div className={styles.liveryBox}>
-                    <img src={selectedLivery.preview ?? ""} alt={`${selectedLivery.name} preview`} loading="lazy" />
-                </div>
-                <div className={styles.changesBox}>
-                    <h2>Changelog for {selectedLivery.version}</h2>
+                    <img className={styles.liveryPreview} src={selectedLivery.preview ?? ""} alt={`${selectedLivery.name} preview`} loading="lazy" />
                 </div>
             </div>
         </div>
