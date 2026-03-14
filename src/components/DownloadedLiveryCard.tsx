@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import type { InstalledLiveryRecord } from '@/types/electron-api';
-import type { Livery } from '@/types/livery';
-import { formatDate } from '@/utils/livery';
+import type { Livery, LiveryUpdate } from '@/types/livery';
 import styles from './DownloadedLiveryCard.module.css';
 
 interface DownloadedLiveryCardProps {
     entry: InstalledLiveryRecord;
     liveryMatch?: Livery;
+    update?: LiveryUpdate;
     onUninstall: (entry: InstalledLiveryRecord) => Promise<void>;
+    onUpdate?: (update: LiveryUpdate) => Promise<void>;
 }
 
-const classNames = (...tokens: Array<string | false>) => tokens.filter(Boolean).join(' ');
+const classNames = (...tokens: Array<string | false | undefined>) => tokens.filter(Boolean).join(' ');
 
 const UninstallIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -20,8 +21,15 @@ const UninstallIcon = () => (
     </svg>
 );
 
-export const DownloadedLiveryCard = ({ entry, liveryMatch, onUninstall }: DownloadedLiveryCardProps) => {
+const UpdateIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+    </svg>
+);
+
+export const DownloadedLiveryCard = ({ entry, liveryMatch, update, onUninstall, onUpdate }: DownloadedLiveryCardProps) => {
     const [busy, setBusy] = useState(false);
+    const [updating, setUpdating] = useState(false);
 
     const handleUninstall = async () => {
         setBusy(true);
@@ -32,16 +40,23 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, onUninstall }: Downlo
         }
     };
 
+    const handleUpdate = async () => {
+        if (!update || !onUpdate) return;
+        setUpdating(true);
+        try {
+            await onUpdate(update);
+        } finally {
+            setUpdating(false);
+        }
+    };
+
     const preview = liveryMatch?.preview;
     const aircraftTitle = liveryMatch?.aircraftProfileName ?? 'Unknown aircraft';
     const developer = liveryMatch?.developerName ?? 'Unknown developer';
     const simulatorLabel = (entry.simulator ?? 'Unknown').toUpperCase();
-    
-    const engineType = liveryMatch?.engine ?? 'Unknown';
-    const category = liveryMatch?.categoryName ?? 'Unknown';
-    const year = liveryMatch?.year ? String(liveryMatch.year) : '—';
-    
-    // Format install date as DD.MM.YYYY
+    const engineType = liveryMatch?.engine ?? '';
+    const category = liveryMatch?.categoryName ?? '';
+
     const formatInstallDate = (dateString: string) => {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -50,28 +65,45 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, onUninstall }: Downlo
         return `${day}.${month}.${year}`;
     };
 
+    const hasUpdate = Boolean(update);
+    const disabled = busy || updating;
+
     return (
-        <article className={styles.card} aria-label={`${entry.originalName} installed livery`}>
+        <article className={classNames(styles.card, hasUpdate && styles.cardHasUpdate)} aria-label={`${entry.originalName} installed livery`}>
             <div className={styles.imageContainer}>
-                <span className={styles.installedBadge}>INSTALLED</span>
+                {/* Badges */}
                 <span className={styles.simulatorBadge}>{simulatorLabel}</span>
+
+                {hasUpdate && (
+                    <span className={styles.updateBadge}>
+                        UPDATE
+                    </span>
+                )}
 
                 {preview ? (
                     <img className={styles.image} src={preview} alt={`${entry.originalName} preview`} loading="lazy" />
                 ) : (
-                    <div className={styles.placeholder}>No preview available</div>
+                    <div className={styles.placeholder}>
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden>
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <span>No preview</span>
+                    </div>
                 )}
+
+                {/* Gradient overlay for text readability */}
+                <div className={styles.imageGradient} />
+
+                {/* Title overlay on the image */}
+                <div className={styles.imageOverlay}>
+                    <p className={styles.overlayDeveloper}>{developer}</p>
+                    <h3 className={styles.overlayTitle}>{entry.originalName}</h3>
+                </div>
             </div>
 
             <div className={styles.content}>
-                <div className={styles.titleRow}>
-                    <div>
-                        <p className={styles.developer}>{developer}</p>
-                        <h3 className={styles.title}>{entry.originalName}</h3>
-                    </div>
-                    {liveryMatch?.version && <span className={styles.badge}>v{liveryMatch.version}</span>}
-                </div>
-
                 <dl className={styles.meta}>
                     <div>
                         <dt className={styles.metaLabel}>Aircraft</dt>
@@ -85,29 +117,57 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, onUninstall }: Downlo
                         <dt className={styles.metaLabel}>Installed</dt>
                         <dd className={styles.metaValue}>{formatInstallDate(entry.installDate)}</dd>
                     </div>
-                    <div>
-                        <dt className={styles.metaLabel}>Engine</dt>
-                        <dd className={styles.metaValue}>{engineType}</dd>
-                    </div>
-                    <div>
-                        <dt className={styles.metaLabel}>Category</dt>
-                        <dd className={styles.metaValue}>{category}</dd>
-                    </div>
-                    <div>
-                        <dt className={styles.metaLabel}>Year</dt>
-                        <dd className={styles.metaValue}>{year}</dd>
-                    </div>
-                    <div className={styles.directoryField}>
-                        <dt className={styles.metaLabel}>Directory</dt>
-                        <dd className={styles.metaValue} title={entry.installPath}>{entry.folderName}</dd>
-                    </div>
+                    {engineType && (
+                        <div>
+                            <dt className={styles.metaLabel}>Engine</dt>
+                            <dd className={styles.metaValue}>{engineType}</dd>
+                        </div>
+                    )}
+                    {category && (
+                        <div>
+                            <dt className={styles.metaLabel}>Category</dt>
+                            <dd className={styles.metaValue}>{category}</dd>
+                        </div>
+                    )}
+                    {liveryMatch?.version && (
+                        <div>
+                            <dt className={styles.metaLabel}>Version</dt>
+                            <dd className={styles.metaValue}>v{liveryMatch.version}</dd>
+                        </div>
+                    )}
                 </dl>
 
+                {hasUpdate && update && (
+                    <div className={styles.updateInfo}>
+                        <div className={styles.updateVersions}>
+                            <span className={styles.versionOld}>{update.currentVersion}</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                            <span className={styles.versionNew}>{update.latestVersion}</span>
+                        </div>
+                        {update.changelog && (
+                            <p className={styles.changelog}>{update.changelog}</p>
+                        )}
+                    </div>
+                )}
+
                 <div className={styles.actions}>
+                    {hasUpdate && (
+                        <button
+                            className={classNames(styles.updateButton, updating && styles.updateButtonBusy)}
+                            onClick={handleUpdate}
+                            disabled={disabled}
+                            aria-label={`Update ${entry.originalName}`}
+                        >
+                            <UpdateIcon />
+                            {updating ? 'Updating…' : 'Update'}
+                        </button>
+                    )}
                     <button
                         className={classNames(styles.uninstallButton, busy && styles.uninstallButtonBusy)}
                         onClick={handleUninstall}
-                        disabled={busy}
+                        disabled={disabled}
                         aria-label={`Uninstall ${entry.originalName}`}
                     >
                         <UninstallIcon />
