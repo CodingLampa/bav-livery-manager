@@ -1,5 +1,5 @@
 import { useLiveryStore } from "@/store/liveryStore";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { ReturnButton } from "@/components/ReturnButton";
 import styles from "@/pages/InformationPage.module.css"
@@ -13,9 +13,6 @@ export function InformationPage() {
         return liveries.find(livery => livery.id === liveryId)
     }, [liveries, liveryId]);
 
-    const logoSrc = selectedLivery ? `${selectedLivery.developerName}.png` : "";
-
-
     // TODO: Show the error
 
     if (!selectedLivery) {
@@ -25,6 +22,24 @@ export function InformationPage() {
             </>
         )
     }
+
+    const logoSrc = `${selectedLivery.developerName}.png`;
+
+    const liveryRegistration = selectedLivery.name.split(" ")[0];
+
+    const flightRadarUrl = `https://www.flightradar24.com/data/aircraft/${liveryRegistration}`;
+    const airNavRadarUrl = `https://www.airnavradar.com/data/registration/${liveryRegistration}`;
+    const planeSpottersUrl = `https://www.planespotters.net/photos/reg/${liveryRegistration}`;
+
+    const openWebsite = (url: string) => {
+        const api = window.electronAPI;
+        if (!api?.openPanelAuth || url === "") {
+            return;
+        }
+
+        api.openPanelAuth(url);
+        return;
+    };
 
     return (
         <div className={styles.informationPage}>
@@ -47,10 +62,10 @@ export function InformationPage() {
                         <dl>
                             <div>
                                 <dt className={styles.metaLabel}>Registration</dt>
-                                <dd className={styles.metaValue}>{selectedLivery.name ?? '—'}</dd>
+                                <dd className={styles.metaValue}>{liveryRegistration}</dd>
                             </div>
                             <div>
-                                <dt className={styles.metaLabel}>MSN</dt>
+                                <dt className={styles.metaLabel}>MSN / Serial</dt>
                             </div>
                             <div>
                                 <dt className={styles.metaLabel}>SELCAL</dt>
@@ -77,16 +92,16 @@ export function InformationPage() {
                     </div>
                     <div className={styles.buttonsContainer}>
                         <div className={styles.radarButtonsGroup}>
-                            <button className={styles.radarButton}>
+                            <button className={styles.radarButton} onClick={() => openWebsite(flightRadarUrl)}>
                                 <img className={styles.radarIcon} src="flightradar24.webp" alt="flightradar24 icon" />
                                 FlightRadar24
                             </button>
-                            <button className={styles.radarButton}>
+                            <button className={styles.radarButton} onClick={() => openWebsite(airNavRadarUrl)}>
                                 <img className={styles.radarIcon} src="airnavradar.webp" alt="airnavradar icon" />
                                 AirNavRadar
                             </button>
                         </div>
-                        <button className={styles.radarButton}>
+                            <button className={styles.radarButton} onClick={() => openWebsite(planeSpottersUrl)}>
                             <img className={styles.radarIcon} src="planespotters.webp" alt="planespotters icon" />
                             PlaneSpotters
                         </button>
