@@ -36,14 +36,22 @@
     display: inline-flex;
     align-items: center;
     margin-top: 6px;
-}
+   }
 
 .simulatorLogo {
-    max-height: 34px;
+    max-height: 60px;
     width: auto;
     display: block;
     filter: none;
     object-fit: contain;
+    border: 1px solid var(--border);
+    border-radius: 6px;  
+    margin-right: 8px; 
+}
+
+.headerCount {
+    display: flex;
+    flex-direction: column;
 }
 
 .resultCount {
