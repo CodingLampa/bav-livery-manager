@@ -43,9 +43,9 @@ const api: ElectronAPI = {
         ensureInvokeChannel('fetch-liveries');
         return ipcRenderer.invoke('fetch-liveries', authToken ?? null);
     },
-    downloadLivery: (downloadEndpoint, liveryId, liveryName, simulator, resolution, authToken) => {
+    downloadLivery: (downloadEndpoint, liveryId, liveryName, liveryDeveloper, aircraft, simulator, resolution, authToken) => {
         ensureInvokeChannel('download-livery');
-        return ipcRenderer.invoke('download-livery', downloadEndpoint, liveryId, liveryName, simulator, resolution, authToken ?? null);
+        return ipcRenderer.invoke('download-livery', downloadEndpoint, liveryId, liveryName, liveryDeveloper, aircraft, simulator, resolution, authToken ?? null);
     },
     uninstallLivery: (installPath) => {
         ensureInvokeChannel('uninstall-livery');

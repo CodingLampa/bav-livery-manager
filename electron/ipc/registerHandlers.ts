@@ -50,6 +50,8 @@ export function registerIpcHandlers(appContext: AppContext) {
             downloadEndpoint: string,
             liveryId: string,
             liveryName: string,
+            liveryDeveloper: string,
+            aircraft: string,
             simulator: 'MSFS2020' | 'MSFS2024',
             resolution: string,
             authToken: string | null
@@ -67,6 +69,8 @@ export function registerIpcHandlers(appContext: AppContext) {
                 downloadEndpoint,
                 liveryId,
                 liveryName,
+                liveryDeveloper,
+                aircraft,
                 simulator,
                 resolution,
                 settings,
