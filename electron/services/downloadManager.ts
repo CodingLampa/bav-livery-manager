@@ -8,11 +8,16 @@ import type { AppContext, DownloadProgress, DownloadResult, Settings } from '../
 import { fetchJson, fetchWithTimeout } from '../utils/network';
 import { recordInstallation } from './installedLiveriesStore';
 import { PANEL_BASE_URL } from '../../shared/constants';
+import extract from 'extract-zip';
+import { processLayout } from 'msfs-layout-generator';
+import { detectSimulatorPaths } from './simulatorPaths';
 
 interface DownloadLiveryOptions {
     downloadEndpoint: string;
     liveryId: string;
     liveryName: string;
+    liveryDeveloper: string;
+    aircraft: string;
     simulator: 'MSFS2020' | 'MSFS2024';
     resolution: string;
     settings: Settings;
@@ -74,7 +79,7 @@ function deriveZipFilename(downloadUrl: string): string {
 }
 
 export async function downloadAndInstallLivery(options: DownloadLiveryOptions): Promise<DownloadResult> {
-    const { downloadEndpoint, liveryId, liveryName, simulator, resolution, settings, appContext, authToken } = options;
+    const { downloadEndpoint, liveryId, liveryName, liveryDeveloper, aircraft, simulator, resolution, settings, appContext, authToken } = options;
 
     if (!authToken) {
         return { success: false, error: 'Missing authentication token. Please sign in again.' };
@@ -96,7 +101,7 @@ export async function downloadAndInstallLivery(options: DownloadLiveryOptions): 
     const zipFilename = deriveZipFilename(downloadUrl);
     const folderName = zipFilename.replace(/\.zip$/i, '');
     const outputPath = path.join(baseFolder, zipFilename);
-    const extractPath = path.join(baseFolder, folderName);
+    let extractPath = path.join(baseFolder, folderName);
 
     try {
         await retryAsync(() => downloadFile(downloadUrl, outputPath, (progress) => {
@@ -128,7 +133,11 @@ export async function downloadAndInstallLivery(options: DownloadLiveryOptions): 
             targetWindow.setProgressBar(2, { mode: 'indeterminate' });
         }
 
-        await extractZipNonBlocking(outputPath, extractPath);
+        if (liveryDeveloper === 'PMDG') {
+            extractPath = await installPMDG(outputPath, baseFolder, simulator, aircraft, liveryDeveloper, liveryName, folderName);
+        } else {
+            await extractZipNonBlocking(outputPath, extractPath);
+        }
 
         // Record the installation in our local store (not in the livery folder)
         const simCode = simulator === 'MSFS2024' ? 'FS24' : 'FS20';
@@ -246,48 +255,52 @@ async function resolveDownloadEndpoint(endpoint: string, authToken: string | nul
     return fetchJson<SignedDownloadPayload>(endpoint, { headers }, 15000);
 }
 
+async function installPMDG(zipPath: string, extractPath: string, simulator: 'MSFS2020' | 'MSFS2024', aircraft: string, liveryDeveloper: string, liveryName: string, folderName: string) {
+    const aircraftShort = aircraft === "B77W" ? "77w" : aircraft === "B772" ? "77er" : aircraft.toLowerCase();
+    const aircraftFull = aircraftShort === "77w" ? "777-300ER" : aircraftShort === "77er" ? "Boeing 777-200ER" : aircraft;
+    const pmdgLiveryFolderPath = `${extractPath}/pmdg-aircraft-${aircraftShort}-liveries`;
+    const exptractPathForPmdg = `${pmdgLiveryFolderPath}/SimObjects/Airplanes/${simulator === 'MSFS2024' ? 'PMDG ' + aircraftFull + '/liveries/pmdg' : ''}/${folderName}`;
+
+    const registation = liveryName.split(' ')[0];
+
+    const installationPromise = new Promise<void>(async (resolve, reject) => {
+        await extractZip(zipPath, exptractPathForPmdg).then(resolve).catch(reject);
+    });
+
+    await processLayout(pmdgLiveryFolderPath, { force: true });
+
+    const wasmFolder = simulator === "MSFS2020" ? (await detectSimulatorPaths()).msfs2020WasmPath : (await detectSimulatorPaths()).msfs2024WasmPath;
+
+    if (!wasmFolder) {
+        throw new Error(`Could not detect WASM folder for ${simulator}`);
+    }
+
+    const sourceFile = path.join(exptractPathForPmdg, "options.ini");
+    const destinationPath = path.join(wasmFolder + `/pmdg-aircraft-${aircraftShort}/work/Aircraft`, `${registation}.ini`);
+
+    console.log(sourceFile, destinationPath);
+
+    await fs.copy(sourceFile, destinationPath);
+
+    return exptractPathForPmdg;
+}
+
 async function extractZipNonBlocking(zipPath: string, extractPath: string) {
     return new Promise<void>((resolve, reject) => {
-        const psCommand = [
-            '-NoProfile',
-            '-ExecutionPolicy', 'Bypass',
-            '-Command',
-            `& {
-                    param($ZipPath, $DestPath)
-                    Expand-Archive -LiteralPath $ZipPath -DestinationPath $DestPath -Force
-                    if ($?) { exit 0 } else { exit 1 }
-                } -ZipPath '${zipPath.replace(/'/g, "''")}' -DestPath '${extractPath.replace(/'/g, "''")}'`
-        ];
-
-        const child = spawn('powershell.exe', psCommand);
-
-        child.on('close', (code) => {
-            if (code === 0) {
-                resolve();
-            } else {
-                console.log('PowerShell extraction failed, falling back to AdmZip');
-                extractWithAdmZip(zipPath, extractPath).then(resolve).catch(reject);
-            }
-        });
-
-        child.on('error', (error) => {
-            console.log('PowerShell process failed, falling back to AdmZip:', error);
-            extractWithAdmZip(zipPath, extractPath).then(resolve).catch(reject);
+        const installationPromise = new Promise<void>(async (resolve, reject) => {
+            await extractZip(zipPath, extractPath).then(resolve).catch(reject);
         });
     });
 }
 
-function extractWithAdmZip(zipPath: string, extractPath: string) {
-    return new Promise<void>((resolve, reject) => {
-        setImmediate(() => {
-            try {
-                const zip = new AdmZip(zipPath);
-                zip.extractAllTo(extractPath, true);
-                resolve();
-            } catch (error) {
-                reject(error);
-            }
-        });
+function extractZip(zipPath: string, extractPath: string) {
+    return new Promise<void>(async (resolve, reject) => {
+        try {
+            await extract(zipPath, { dir: extractPath })
+            resolve();
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 

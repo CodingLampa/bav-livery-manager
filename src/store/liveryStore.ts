@@ -424,7 +424,7 @@ export const useLiveryStore = create<LiveryState>((set, get) => {
             }));
 
             try {
-                const result = await api.downloadLivery(downloadRequestUrl, livery.id, livery.name, targetSimulator, resolution, authToken);
+                const result = await api.downloadLivery(downloadRequestUrl, livery.id, livery.name, livery.developerName, livery.aircraftProfileName, targetSimulator, resolution, authToken);
                 if (!result.success) {
                     throw new Error(result.error || 'Download failed');
                 }

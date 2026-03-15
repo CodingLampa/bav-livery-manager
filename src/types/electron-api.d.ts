@@ -49,6 +49,8 @@ export interface ElectronAPI {
         downloadEndpoint: string,
         liveryId: string,
         liveryName: string,
+        developerName: string,
+        aircraft: string,
         simulator: 'MSFS2020' | 'MSFS2024',
         resolution: string,
         authToken?: string | null
