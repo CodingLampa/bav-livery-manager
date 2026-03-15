@@ -483,13 +483,13 @@ export const SearchPage = () => {
                                     className={styles.simulatorLogo}
                                 />
                                 <div className={styles.headerCount}>
-                                <h1 className={styles.title}>Liveries</h1>
-                                {hasSimulatorSelection && (
-                                    <p className={styles.resultCount}>
-                                        <strong>{numberFormatter.format(dedupedLiveries.length)}</strong> {dedupedLiveries.length === 1 ? 'livery' : 'liveries'} found
-                                        {searchTerm && <span className={styles.searchTermHint}> for &ldquo;{searchTerm}&rdquo;</span>}
-                                    </p>
-                                )}
+                                    <h1 className={styles.title}>Liveries</h1>
+                                    {hasSimulatorSelection && (
+                                        <p className={styles.resultCount}>
+                                            <strong>{numberFormatter.format(dedupedLiveries.length)}</strong> {dedupedLiveries.length === 1 ? 'livery' : 'liveries'} found
+                                            {searchTerm && <span className={styles.searchTermHint}> for &ldquo;{searchTerm}&rdquo;</span>}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         )}

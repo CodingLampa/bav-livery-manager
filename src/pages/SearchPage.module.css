@@ -37,7 +37,7 @@
     align-items: center;
     margin-top: 6px;
     gap: 14px;
-   }
+}
 
 .simulatorLogo {
     max-height: 60px;
@@ -46,8 +46,7 @@
     filter: none;
     object-fit: contain;
     border: 1px solid var(--border);
-    border-radius: 6px;  
-
+    border-radius: 6px;
 }
 
 .headerCount {
@@ -90,7 +89,7 @@
     transition: background 0.2s ease, color 0.2s ease;
 }
 
-.viewToggleButton + .viewToggleButton {
+.viewToggleButton+.viewToggleButton {
     border-left: 1px solid var(--border);
 }
 
@@ -266,7 +265,7 @@
     transition: grid-template-rows 0.25s ease;
 }
 
-.filterPanel > * {
+.filterPanel>* {
     overflow: hidden;
 }
 
@@ -546,4 +545,3 @@
 .emptyStateAction:hover {
     background: rgba(255, 255, 255, 0.1);
 }
-
