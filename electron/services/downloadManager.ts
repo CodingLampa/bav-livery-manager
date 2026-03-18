@@ -134,7 +134,7 @@ export async function downloadAndInstallLivery(options: DownloadLiveryOptions): 
         if (liveryDeveloper === 'PMDG') {
             extractPath = await installPMDG(outputPath, baseFolder, simulator, aircraft, liveryDeveloper, liveryName, folderName);
         } else {
-            await extractZipNonBlocking(outputPath, extractPath);
+            await extractZip(outputPath, extractPath);
         }
 
         // Record the installation in our local store (not in the livery folder)
@@ -279,14 +279,6 @@ async function installPMDG(zipPath: string, extractPath: string, simulator: 'MSF
     await fs.copy(sourceFile, destinationPath);
 
     return exptractPathForPmdg;
-}
-
-async function extractZipNonBlocking(zipPath: string, extractPath: string) {
-    return new Promise<void>((resolve, reject) => {
-        const installationPromise = new Promise<void>(async (resolve, reject) => {
-            await extractZip(zipPath, extractPath).then(resolve).catch(reject);
-        });
-    });
 }
 
 function extractZip(zipPath: string, extractPath: string) {

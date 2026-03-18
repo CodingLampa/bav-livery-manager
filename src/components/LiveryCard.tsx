@@ -189,7 +189,7 @@ export const LiveryCard = ({
                 <dl className={styles.meta}>
                     <div>
                         <dt className={styles.metaLabel}>Aircraft</dt>
-                        <dd className={styles.metaValue}>{livery.aircraft || livery.aircraftProfileName || 'Unknown'}</dd>
+                        <dd className={styles.metaValue}>{livery.aircraftProfileName}</dd>
                     </div>
                     <div>
                         <dt className={styles.metaLabel}>Developer</dt>
