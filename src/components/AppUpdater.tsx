@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import type { AppUpdateStatus } from '@/types/electron-api';
 import { APP_VERSION } from '@/constants/appVersion';
 import styles from './AppUpdater.module.css';
+import { GitPullRequest } from 'react-feather';
 
 type UpdateState =
     | { phase: 'idle' }
@@ -34,10 +35,10 @@ const RefreshIcon = () => (
 
 const RocketIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
-        <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
-        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
-        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+        <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
     </svg>
 );
 
@@ -130,7 +131,10 @@ export const AppUpdater = () => {
                     <div className={styles.statusRow}>
                         <div className={styles.statusInfo}>
                             <span className={styles.versionLabel}>Current version</span>
-                            <span className={styles.versionNumber}>v{APP_VERSION}</span>
+                            <div className={styles.versionBadge}>
+                                <GitPullRequest size={18}/>
+                                <span className={styles.versionNumber}>v{APP_VERSION}</span>
+                            </div>
                         </div>
                         <button className={styles.checkButton} onClick={handleCheckForUpdate}>
                             <RefreshIcon />

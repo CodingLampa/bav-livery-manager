@@ -26,6 +26,12 @@
     letter-spacing: 0.04em;
 }
 
+.versionBadge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .versionNumber {
     font-size: 0.9rem;
     font-weight: 600;

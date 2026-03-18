@@ -1,9 +1,7 @@
 import * as path from 'node:path';
-import { spawn } from 'node:child_process';
 import { Readable } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import * as fs from 'fs-extra';
-import AdmZip from 'adm-zip';
 import type { AppContext, DownloadProgress, DownloadResult, Settings } from '../types';
 import { fetchJson, fetchWithTimeout } from '../utils/network';
 import { recordInstallation } from './installedLiveriesStore';
@@ -136,7 +134,7 @@ export async function downloadAndInstallLivery(options: DownloadLiveryOptions): 
         if (liveryDeveloper === 'PMDG') {
             extractPath = await installPMDG(outputPath, baseFolder, simulator, aircraft, liveryDeveloper, liveryName, folderName);
         } else {
-            await extractZipNonBlocking(outputPath, extractPath);
+            await extractZip(outputPath, extractPath);
         }
 
         // Record the installation in our local store (not in the livery folder)
@@ -263,9 +261,7 @@ async function installPMDG(zipPath: string, extractPath: string, simulator: 'MSF
 
     const registation = liveryName.split(' ')[0];
 
-    const installationPromise = new Promise<void>(async (resolve, reject) => {
-        await extractZip(zipPath, exptractPathForPmdg).then(resolve).catch(reject);
-    });
+    await extractZip(zipPath, exptractPathForPmdg);
 
     await processLayout(pmdgLiveryFolderPath, { force: true });
 
@@ -283,14 +279,6 @@ async function installPMDG(zipPath: string, extractPath: string, simulator: 'MSF
     await fs.copy(sourceFile, destinationPath);
 
     return exptractPathForPmdg;
-}
-
-async function extractZipNonBlocking(zipPath: string, extractPath: string) {
-    return new Promise<void>((resolve, reject) => {
-        const installationPromise = new Promise<void>(async (resolve, reject) => {
-            await extractZip(zipPath, extractPath).then(resolve).catch(reject);
-        });
-    });
 }
 
 function extractZip(zipPath: string, extractPath: string) {

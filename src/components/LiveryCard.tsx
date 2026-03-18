@@ -141,7 +141,7 @@ export const LiveryCard = ({
         : peerResolutions;
 
     return (
-        <article className={classNames(styles.card, installedAny && styles.cardInstalled)} aria-label={`${livery.name} livery`}>
+        <article className={styles.card} aria-label={`${livery.name} livery`}>
             <div className={styles.imageContainer}>
                 {downloadState && (
                     <div className={classNames(styles.overlay, downloadState.extracting ? styles.overlayExtracting : undefined)}>
@@ -189,7 +189,7 @@ export const LiveryCard = ({
                 <dl className={styles.meta}>
                     <div>
                         <dt className={styles.metaLabel}>Aircraft</dt>
-                        <dd className={styles.metaValue}>{livery.aircraft || livery.aircraftProfileName || 'Unknown'}</dd>
+                        <dd className={styles.metaValue}>{livery.aircraftProfileName}</dd>
                     </div>
                     <div>
                         <dt className={styles.metaLabel}>Developer</dt>

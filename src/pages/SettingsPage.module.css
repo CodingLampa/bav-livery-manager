@@ -9,20 +9,26 @@
 .header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: flex-end;
     gap: 8px;
     flex-wrap: wrap;
 }
 
 .header h1 {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: 2rem;
 }
 
 .description {
-    margin: 2px 0 0;
+    margin: -4px 0 0;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.9rem;
+}
+
+.note {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.8rem;
 }
 
 .autoDetectButton {
@@ -49,7 +55,7 @@
 .form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     background: var(--card);
     border-radius: 6px;
     border: 1px solid var(--border);
@@ -64,7 +70,7 @@
 }
 
 .label {
-    font-size: 0.78rem;
+    font-size: 0.9rem;
     color: var(--text);
 }
 
@@ -100,6 +106,14 @@
     cursor: pointer;
     font-size: 0.78rem;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.inputRow button p {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
 }
 
 .inputRow button:hover {
@@ -114,8 +128,14 @@
     flex-wrap: wrap;
 }
 
+.formActions button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .submitButton {
-    padding: 6px 14px;
+    padding: 6px 10px;
     background: #2a2a2a;
     color: #ffffff;
     border: 1px solid var(--border);
@@ -132,7 +152,7 @@
 }
 
 .detectButton {
-    padding: 6px 14px;
+    padding: 6px 10px;
     background: transparent;
     color: #ffffff;
     border: 1px solid #17a61c;
@@ -151,18 +171,20 @@
     cursor: not-allowed;
 }
 
-/* ─── Account Card ─── */
 .accountCard {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.06), var(--card));
+    /* background: linear-gradient(135deg, rgba(220, 53, 69, 0.06), var(--card));
     border-radius: 6px;
-    border: 1px solid rgba(220, 53, 69, 0.25);
+    border: 1px solid rgba(220, 53, 69, 0.25); */
     padding: 10px 14px;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+    /* box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15); */
+    border: 1px solid var(--border);
+    border-radius: 8px;
 }
 
 .accountHeader {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
 }
 
@@ -229,11 +251,10 @@
 }
 
 .signOutButton {
-    padding: 4px 10px;
-    border-radius: 5px;
-    border: 1px solid rgba(220, 53, 69, 0.3);
+    padding: 4px 8px 0;
     background: transparent;
-    color: var(--muted);
+    border: 0px;
+    color: var(--text);
     font-size: 0.68rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -241,9 +262,7 @@
 }
 
 .signOutButton:hover {
-    border-color: #dc3545;
     color: #dc3545;
-    background: rgba(220, 53, 69, 0.1);
 }
 
 /* ─── Bottom section (App Updates & Changelog) ─── */
@@ -276,10 +295,9 @@
     color: var(--text);
 }
 
-/* ─── Footer ─── */
 .footer {
     flex-shrink: 0;
-    padding-top: 8px;
+    padding-top: 16px;
     border-top: 1px solid var(--border);
     display: flex;
     flex-direction: column;
@@ -289,13 +307,13 @@
 
 .footerText {
     margin: 0;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: var(--muted);
 }
 
 .secondFooterText {
     margin: 4px 0;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: var(--muted);
 }
 
