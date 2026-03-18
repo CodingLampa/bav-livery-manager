@@ -1,9 +1,7 @@
 import * as path from 'node:path';
-import { spawn } from 'node:child_process';
 import { Readable } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import * as fs from 'fs-extra';
-import AdmZip from 'adm-zip';
 import type { AppContext, DownloadProgress, DownloadResult, Settings } from '../types';
 import { fetchJson, fetchWithTimeout } from '../utils/network';
 import { recordInstallation } from './installedLiveriesStore';
@@ -263,9 +261,7 @@ async function installPMDG(zipPath: string, extractPath: string, simulator: 'MSF
 
     const registation = liveryName.split(' ')[0];
 
-    const installationPromise = new Promise<void>(async (resolve, reject) => {
-        await extractZip(zipPath, exptractPathForPmdg).then(resolve).catch(reject);
-    });
+    await extractZip(zipPath, exptractPathForPmdg);
 
     await processLayout(pmdgLiveryFolderPath, { force: true });
 
