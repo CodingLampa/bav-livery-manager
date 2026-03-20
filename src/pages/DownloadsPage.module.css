@@ -347,10 +347,8 @@
 }
 
 .grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    grid-auto-rows: min-content;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
     overflow-y: auto;
     padding-right: 8px;

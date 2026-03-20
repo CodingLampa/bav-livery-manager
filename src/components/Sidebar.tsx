@@ -3,10 +3,11 @@ import { DownloadProgress } from './DownloadProgress';
 import { UpdateBadge } from './UpdateBadge';
 import { APP_VERSION } from '@/constants/appVersion';
 import styles from './Sidebar.module.css';
+import { RotateCw } from 'react-feather';
 
 const NAV_ITEMS = [
     { label: 'Search', to: '/search', icon: 'search' },
-    { label: 'Downloads', to: '/downloads', icon: 'download' },
+    { label: 'Updates', to: '/downloads', icon: 'download' },
     { label: 'Settings', to: '/settings', icon: 'settings' }
 ];
 
@@ -16,11 +17,7 @@ const Icon = ({ name }: { name: string }) => {
     switch (name) {
         case 'download':
             return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
+                <RotateCw/>
             );
         case 'settings':
             return (

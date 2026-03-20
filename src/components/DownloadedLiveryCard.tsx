@@ -4,7 +4,7 @@ import type { Livery, LiveryUpdate } from '@/types/livery';
 import styles from './DownloadedLiveryCard.module.css';
 
 interface DownloadedLiveryCardProps {
-    entry: InstalledLiveryRecord;
+    entry: InstalledLiveryRecord & LiveryUpdate;
     liveryMatch?: Livery;
     update?: LiveryUpdate;
     onUninstall: (entry: InstalledLiveryRecord) => Promise<void>;
@@ -69,7 +69,7 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, update, onUninstall, 
     const disabled = busy || updating;
 
     return (
-        <article className={classNames(styles.card, hasUpdate && styles.cardHasUpdate)} aria-label={`${entry.originalName} installed livery`}>
+        <article className={styles.card} aria-label={`${entry.originalName} installed livery`}>
             <div className={styles.imageContainer}>
                 {/* Badges */}
                 <span className={styles.simulatorBadge}>{simulatorLabel}</span>
@@ -104,6 +104,10 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, update, onUninstall, 
             </div>
 
             <div className={styles.content}>
+                <div>
+                    <h3>{entry.originalName} v{update!.latestVersion}</h3>
+                    <p>Aircraft details:</p>
+                </div>
                 <dl className={styles.meta}>
                     <div>
                         <dt className={styles.metaLabel}>Aircraft</dt>
@@ -140,11 +144,7 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, update, onUninstall, 
                 {hasUpdate && update && (
                     <div className={styles.updateInfo}>
                         <div className={styles.updateVersions}>
-                            <span className={styles.versionOld}>{update.currentVersion}</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                            <span className={styles.versionNew}>{update.latestVersion}</span>
+                            <span>Changelog:</span>
                         </div>
                         {update.changelog && (
                             <p className={styles.changelog}>{update.changelog}</p>
