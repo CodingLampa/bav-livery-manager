@@ -77,7 +77,7 @@ export function TourWelcomeModal() {
                         </div>
                     </div>
                     <div className={styles.body}>
-                        <h2 className={styles.title}>Hey, John-Paul Canon!</h2>
+                        <h2 className={styles.title}>Hey, {fullName || "pilot"}!</h2>
                         <p className={styles.description}>
                             Looks like it's your first time here. Would you like a quick tour
                             to get familiar with the app?
