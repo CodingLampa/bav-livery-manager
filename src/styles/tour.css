@@ -1,0 +1,73 @@
+.driver-popover {
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 320px;
+    background-color: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.driver-popover-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.driver-popover-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+.driver-popover-progress-text {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.driver-popover-arrow-side-left.driver-popover-arrow   { border-right-color: var(--panel); }
+.driver-popover-arrow-side-right.driver-popover-arrow  { border-left-color: var(--panel); }
+.driver-popover-arrow-side-top.driver-popover-arrow    { border-bottom-color: var(--panel); }
+.driver-popover-arrow-side-bottom.driver-popover-arrow { border-top-color: var(--panel); }
+
+.driver-popover-footer {
+    margin-top: 16px;
+    gap: 8px;
+}
+
+.driver-popover-prev-btn,
+.driver-popover-next-btn,
+.driver-popover-close-btn {
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.driver-popover-prev-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.driver-popover-next-btn {
+    background: var(--primary);
+    border: 1px solid transparent;
+    color: var(--bg);
+}
+
+.driver-popover-prev-btn:hover,
+.driver-popover-close-btn:hover {
+    background: var(--card);
+}
+
+.driver-popover-next-btn:hover {
+    opacity: 0.85;
+}
+
+.driver-overlay {
+    background: rgba(0, 0, 0, 0.65) !important;
+}

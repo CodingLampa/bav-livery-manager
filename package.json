@@ -26,6 +26,7 @@
   "packageManager": "bun@1.2.21",
   "dependencies": {
     "@tanstack/react-query": "^5.59.0",
+    "driver.js": "^1.4.0",
     "electron-log": "^5.1.4",
     "electron-updater": "^6.3.9",
     "extract-zip": "^2.0.1",

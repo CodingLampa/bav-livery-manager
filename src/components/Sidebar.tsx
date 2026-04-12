@@ -40,7 +40,7 @@ const classNames = (...tokens: Array<string | false | undefined>) => tokens.filt
 
 export const Sidebar = () => {
     return (
-        <aside className={styles.sidePanel}>
+        <aside id="sidebar" className={styles.sidePanel}>
             <div className={styles.topSection}>
                 <div className={styles.panelHeader}>
                     <h2>Livery Manager</h2>

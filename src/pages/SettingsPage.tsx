@@ -7,7 +7,9 @@ import { AppUpdater } from '@/components/AppUpdater';
 import { Changelog } from '@/components/Changelog';
 import styles from './SettingsPage.module.css';
 import { BAVIcon } from "@/components/Icons/BAVIcon";
-import { Folder, LogOut, Save, User, Zap } from 'react-feather';
+import { Book, Folder, LogOut, Save, User, Zap } from 'react-feather';
+import { useTour } from '@/hooks/useTour';
+import { MAIN_TOUR_STEPS } from "@/tour/steps";
 
 export const SettingsPage = () => {
     const settings = useLiveryStore((state) => state.settings);
@@ -26,6 +28,8 @@ export const SettingsPage = () => {
     useEffect(() => {
         setFormState(settings);
     }, [settings]);
+
+    const { startTour } = useTour(MAIN_TOUR_STEPS);
 
     const showToast = (message: string, type: 'success' | 'error' = 'success') => {
         setToast({ message, type });
@@ -118,18 +122,31 @@ export const SettingsPage = () => {
                     <h1 className={styles.title}>Settings</h1>
                     <p className={styles.description}>Manage your account and simulator paths.</p>
                 </div>
-                <div className={styles.accountCard}>
-                    <div className={styles.accountHeader}>
-                        <div className={styles.accountAvatar}>
-                            <User />
+                <div className={styles.userSection}>
+                    <div className={styles.accountCard}>
+                        <div className={styles.accountHeader}>
+                            <div className={styles.accountInfo}>
+                                <p className={styles.accountName}>Get a quick tour</p>
+                                <p className={styles.accountId}>Learn what features are available</p>
+                            </div>
+                            <button type="button" className={styles.signOutButton} onClick={startTour}>
+                                <Book />
+                            </button>
                         </div>
-                        <div className={styles.accountInfo}>
-                            <p className={styles.accountName}>{fullName ?? 'Unknown User'}</p>
-                            <p className={styles.accountId}>{userId ?? '—'}{rank ? ` • ${rank}` : ''}</p>
+                    </div>
+                    <div className={styles.accountCard}>
+                        <div className={styles.accountHeader}>
+                            <div className={styles.accountAvatar}>
+                                <User />
+                            </div>
+                            <div className={styles.accountInfo}>
+                                <p className={styles.accountName}>{fullName ?? 'Unknown User'}</p>
+                                <p className={styles.accountId}>{userId ?? '—'}{rank ? ` • ${rank}` : ''}</p>
+                            </div>
+                            <button type="button" className={styles.signOutButton} onClick={handleSignOut}>
+                                <LogOut />
+                            </button>
                         </div>
-                        <button type="button" className={styles.signOutButton} onClick={handleSignOut}>
-                            <LogOut />
-                        </button>
                     </div>
                 </div>
             </header>
