@@ -31,7 +31,7 @@
 }
 
 .updateCount {
-    color: #3b82f6;
+    color: var(--text);
     font-weight: 500;
 }
 
@@ -45,25 +45,26 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 20px;
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    padding: 0 18px;
+    height: 40px;
+    border: 1px solid var(--border);
     border-radius: 10px;
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-    font-size: 0.9rem;
-    font-weight: 600;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
 }
 
 .updateAllButton:hover:not(:disabled) {
-    background: rgba(59, 130, 246, 0.25);
-    border-color: rgba(59, 130, 246, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .updateAllButton:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
@@ -78,16 +79,18 @@
     background: rgba(255, 255, 255, 0.04);
     color: var(--muted);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
 }
 
 .refreshButton:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.1);
     color: var(--text);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .refreshButton:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
@@ -271,6 +274,49 @@
     background: rgba(255, 255, 255, 0.12);
 }
 
+.simFilterBar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.simFilterChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.simFilterChip:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.simFilterChipActive {
+    border-color: var(--text);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.simFilterCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
 .scrollContainer {
     flex: 1;
     display: flex;
@@ -347,8 +393,9 @@
 }
 
 .grid {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-auto-rows: min-content;
     gap: 20px;
     overflow-y: auto;
     padding-right: 8px;

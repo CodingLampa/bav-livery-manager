@@ -69,22 +69,16 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, update, onUninstall, 
     const disabled = busy || updating;
 
     return (
-        <article className={styles.card} aria-label={`${entry.originalName} installed livery`}>
+        <article className={styles.card} aria-label={`${entry.originalName ?? entry.liveryName ?? 'Livery'} update`}>
             <div className={styles.imageContainer}>
-                {/* Badges */}
                 <span className={styles.simulatorBadge}>{simulatorLabel}</span>
-
-                {hasUpdate && (
-                    <span className={styles.updateBadge}>
-                        UPDATE
-                    </span>
-                )}
+                {hasUpdate && <span className={styles.updateBadge}>Update</span>}
 
                 {preview ? (
                     <img className={styles.image} src={preview} alt={`${entry.originalName} preview`} loading="lazy" />
                 ) : (
                     <div className={styles.placeholder}>
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden>
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                             <circle cx="8.5" cy="8.5" r="1.5" />
                             <polyline points="21 15 16 10 5 21" />
@@ -92,22 +86,16 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, update, onUninstall, 
                         <span>No preview</span>
                     </div>
                 )}
-
-                {/* Gradient overlay for text readability */}
-                <div className={styles.imageGradient} />
-
-                {/* Title overlay on the image */}
-                <div className={styles.imageOverlay}>
-                    <p className={styles.overlayDeveloper}>{developer}</p>
-                    <h3 className={styles.overlayTitle}>{entry.originalName}</h3>
-                </div>
             </div>
 
             <div className={styles.content}>
-                <div>
-                    <h3>{entry.originalName} v{update!.latestVersion}</h3>
-                    <p>Aircraft details:</p>
+                <div className={styles.titleRow}>
+                    <div>
+                        <p className={styles.developer}>{developer}</p>
+                        <h3 className={styles.title}>{entry.originalName ?? entry.liveryName}</h3>
+                    </div>
                 </div>
+
                 <dl className={styles.meta}>
                     <div>
                         <dt className={styles.metaLabel}>Aircraft</dt>
@@ -115,11 +103,11 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, update, onUninstall, 
                     </div>
                     <div>
                         <dt className={styles.metaLabel}>Resolution</dt>
-                        <dd className={styles.metaValue}>{entry.resolution ?? 'Unknown'}</dd>
+                        <dd className={styles.metaValue}>{entry.resolution ?? '—'}</dd>
                     </div>
                     <div>
                         <dt className={styles.metaLabel}>Installed</dt>
-                        <dd className={styles.metaValue}>{formatInstallDate(entry.installDate)}</dd>
+                        <dd className={styles.metaValue}>{entry.installDate ? formatInstallDate(entry.installDate) : '—'}</dd>
                     </div>
                     {engineType && (
                         <div>
@@ -133,18 +121,16 @@ export const DownloadedLiveryCard = ({ entry, liveryMatch, update, onUninstall, 
                             <dd className={styles.metaValue}>{category}</dd>
                         </div>
                     )}
-                    {liveryMatch?.version && (
-                        <div>
-                            <dt className={styles.metaLabel}>Version</dt>
-                            <dd className={styles.metaValue}>v{liveryMatch.version}</dd>
-                        </div>
-                    )}
                 </dl>
 
                 {hasUpdate && update && (
                     <div className={styles.updateInfo}>
                         <div className={styles.updateVersions}>
-                            <span>Changelog:</span>
+                            <span className={styles.versionOld}>v{update.currentVersion}</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                                <path d="M5 12h14M13 6l6 6-6 6" />
+                            </svg>
+                            <span className={styles.versionNew}>v{update.latestVersion}</span>
                         </div>
                         {update.changelog && (
                             <p className={styles.changelog}>{update.changelog}</p>

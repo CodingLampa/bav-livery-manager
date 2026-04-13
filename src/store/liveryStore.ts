@@ -291,24 +291,39 @@ export const useLiveryStore = create<LiveryState>((set, get) => {
                     changelog?: string | null;
                 }> };
 
-                // Map updates to installed liveries
-                const updates: LiveryUpdate[] = data.updates
+                // Map updates to installed liveries — one entry per (liveryId, simulator) pair
+                // so that liveries installed for both FS20 and FS24 both receive updates.
+                const updates: LiveryUpdate[] = [];
+                data.updates
                     .filter((u) => u.hasUpdate)
-                    .map((u) => {
-                        const installed = installedLiveries.find((e) => e.liveryId === u.liveryId);
+                    .forEach((u) => {
+                        const matchingInstalls = installedLiveries.filter((e) => e.liveryId === u.liveryId);
                         const livery = liveries.find((l) => l.id === u.liveryId);
-                        
-                        return {
-                            liveryId: u.liveryId,
-                            currentVersion: u.currentVersion,
-                            latestVersion: u.latestVersion || 'unknown',
-                            hasUpdate: true,
-                            changelog: u.changelog,
-                            liveryName: installed?.originalName || livery?.name || 'Unknown',
-                            installPath: installed?.installPath,
-                            resolution: installed?.resolution,
-                            simulator: installed?.simulator,
-                        };
+
+                        if (matchingInstalls.length === 0) {
+                            updates.push({
+                                liveryId: u.liveryId,
+                                currentVersion: u.currentVersion,
+                                latestVersion: u.latestVersion || 'unknown',
+                                hasUpdate: true,
+                                changelog: u.changelog,
+                                liveryName: livery?.name || 'Unknown',
+                            });
+                        } else {
+                            matchingInstalls.forEach((installed) => {
+                                updates.push({
+                                    liveryId: u.liveryId,
+                                    currentVersion: u.currentVersion,
+                                    latestVersion: u.latestVersion || 'unknown',
+                                    hasUpdate: true,
+                                    changelog: u.changelog,
+                                    liveryName: installed.originalName || livery?.name || 'Unknown',
+                                    installPath: installed.installPath,
+                                    resolution: installed.resolution,
+                                    simulator: installed.simulator,
+                                });
+                            });
+                        }
                     });
 
                 set({ 

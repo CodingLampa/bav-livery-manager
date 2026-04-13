@@ -1,17 +1,26 @@
+/* ─── Card ─── */
 .card {
-    border: 1px solid var(--border);
-    border-radius: 8px;
     background: var(--card);
+    border-radius: 10px;
+    border: 1px solid var(--border);
     overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
     display: flex;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    flex-direction: column;
+    transition: border-color 0.2s ease, box-shadow 0.25s ease;
 }
 
+/* ─── Image ─── */
 .imageContainer {
     position: relative;
+    width: 100%;
     aspect-ratio: 16 / 9;
-    background: #1a1a1a;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1a1a1a;
+    border-bottom: 1px solid var(--border);
 }
 
 .image {
@@ -22,8 +31,6 @@
 }
 
 .placeholder {
-    width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,51 +41,7 @@
 }
 
 .placeholder svg {
-    opacity: 0.3;
-}
-
-.imageGradient {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.85) 0%,
-        rgba(0, 0, 0, 0.3) 40%,
-        transparent 60%
-    );
-    pointer-events: none;
-}
-
-.imageOverlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 12px 14px;
-    z-index: 1;
-}
-
-.overlayDeveloper {
-    margin: 0;
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.7);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-weight: 500;
-}
-
-.overlayTitle {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 1.1;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    opacity: 0.25;
 }
 
 .simulatorBadge {
@@ -88,18 +51,16 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 20px;
     height: 20px;
-    padding: 0 6px;
-    border-radius: 10px;
-    background: #000000;
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 700;
-    line-height: 1;
+    padding: 0 7px;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: #fff;
-    margin-bottom: 1px;
-    margin-left: auto;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    backdrop-filter: blur(4px);
 }
 
 .updateBadge {
@@ -109,50 +70,54 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 20px;
     height: 20px;
-    padding: 0 6px;
-    border-radius: 10px;
-    background: #e4e139;
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 700;
-    line-height: 1;
-    color: #000000;
-    margin-bottom: 1px;
-    margin-left: auto;
+    padding: 0 8px;
+    border-radius: 5px;
+    background: rgba(255, 220, 40, 0.9);
+    color: #000;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
-@keyframes pulse-badge {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.75; }
-}
-
+/* ─── Content ─── */
 .content {
-    padding: 14px;
+    padding: 14px 16px 16px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
     flex: 1;
 }
 
-.content p {
-    margin: 0;
-    font-size: 0.85rem;
+.titleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
 }
 
-.content h3 {
+.developer {
+    color: var(--muted);
     margin: 0;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--text);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
+.title {
+    margin: 2px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+/* ─── Meta grid ─── */
 .meta {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px 8px;
-    margin: 0;
+    gap: 8px 12px;
+    margin: 0 0 10px;
 }
 
 .meta > div {
@@ -162,7 +127,7 @@
 }
 
 .metaLabel {
-    font-size: 0.65rem;
+    font-size: 10px;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -170,126 +135,112 @@
 
 .metaValue {
     margin: 0;
-    font-size: 0.8rem;
-    color: var(--text);
+    font-size: 13px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+/* ─── Update info box ─── */
 .updateInfo {
-    padding: 10px 12px;
+    padding: 9px 12px;
     border-radius: 8px;
-    background: #000;
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
+    margin-bottom: 10px;
 }
 
 .updateVersions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .versionOld {
     color: var(--muted);
-    text-decoration: line-through;
-    opacity: 0.7;
+    opacity: 0.75;
 }
 
 .versionNew {
-    color: #3b82f6;
+    color: var(--text);
     font-weight: 600;
 }
 
 .changelog {
     margin: 0;
-    font-size: 0.75rem;
+    font-size: 0.73rem;
     color: var(--muted);
-    line-height: 1.4;
+    line-height: 1.45;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
+/* ─── Action buttons ─── */
 .actions {
     display: flex;
     gap: 8px;
     margin-top: auto;
 }
 
-.updateButton {
-    display: flex;
+.updateButton,
+.uninstallButton {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     flex: 1;
-    padding: 10px 14px;
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    padding: 9px 12px;
+    border: 1px solid var(--border);
     border-radius: 8px;
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-    font-size: 0.85rem;
-    font-weight: 600;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
+    white-space: nowrap;
 }
 
-.updateButton svg {
-    width: 16px;
-    height: 16px;
+.updateButton svg,
+.uninstallButton svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
 }
 
 .updateButton:hover:not(:disabled) {
-    background: rgba(59, 130, 246, 0.25);
-    border-color: rgba(59, 130, 246, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
-.updateButton:disabled {
-    opacity: 0.6;
+.updateButton:disabled,
+.uninstallButton:disabled {
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
 .updateButtonBusy {
-    opacity: 0.8;
+    opacity: 0.7;
 }
 
 .uninstallButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    flex: 1;
-    padding: 10px 14px;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 8px;
-    background: rgba(239, 68, 68, 0.08);
-    color: #ef4444;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.uninstallButton svg {
-    width: 16px;
-    height: 16px;
+    background: rgba(255, 68, 68, 0.08);
+    border-color: rgba(255, 68, 68, 0.25);
+    color: var(--danger);
 }
 
 .uninstallButton:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.18);
-    border-color: rgba(239, 68, 68, 0.5);
-}
-
-.uninstallButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    background: rgba(255, 68, 68, 0.18);
+    border-color: rgba(255, 68, 68, 0.4);
 }
 
 .uninstallButtonBusy {
-    opacity: 0.8;
+    opacity: 0.7;
 }

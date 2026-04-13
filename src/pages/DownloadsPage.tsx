@@ -6,7 +6,7 @@ import type { LiveryUpdate } from '@/types/livery';
 import styles from './DownloadsPage.module.css';
 import { Download } from 'react-feather';
 
-type FilterKey = 'developer' | 'aircraft' | 'resolution' | 'simulator';
+type SimFilter = 'all' | 'FS20' | 'FS24';
 
 const classNames = (...tokens: Array<string | false | undefined>) => tokens.filter(Boolean).join(' ');
 
@@ -37,19 +37,37 @@ export const DownloadsPage = () => {
 
     const [page, setPage] = useState(1);
     const [updatingAll, setUpdatingAll] = useState(false);
+    const [simFilter, setSimFilter] = useState<SimFilter>('all');
 
+    // Composite key: liveryId + simulator, since one livery can be installed for both sims
     const updatesMap = useMemo(() => {
         const map = new Map<string, LiveryUpdate>();
-        availableUpdates.forEach((u) => map.set(u.liveryId, u));
+        availableUpdates.forEach((u) => map.set(`${u.liveryId}-${u.simulator ?? ''}`, u));
         return map;
     }, [availableUpdates]);
 
-    const filteredLiveries = useMemo(() => {
-        return availableUpdates.map((entry) => {
-            const livery = installedLiveries.find((l) => l.liveryId === entry.liveryId);
-            return { ...entry, ...livery };
+    // Merge each update with its corresponding installed record matched by installPath (most precise)
+    // or by liveryId + simulator as fallback.
+    const allUpdateEntries = useMemo(() => {
+        return availableUpdates.map((update) => {
+            const livery = update.installPath
+                ? installedLiveries.find((l) => l.installPath === update.installPath)
+                : installedLiveries.find((l) => l.liveryId === update.liveryId && l.simulator === update.simulator);
+            // Spread livery first so update fields (changelog, latestVersion, etc.) take priority
+            return { ...livery, ...update };
         });
-    }, [availableUpdates]) as Array<InstalledLiveryRecord & LiveryUpdate>;
+    }, [availableUpdates, installedLiveries]) as Array<InstalledLiveryRecord & LiveryUpdate>;
+
+    const filterCounts = useMemo(() => ({
+        all: allUpdateEntries.length,
+        FS20: allUpdateEntries.filter((e) => e.simulator === 'FS20').length,
+        FS24: allUpdateEntries.filter((e) => e.simulator === 'FS24').length,
+    }), [allUpdateEntries]);
+
+    const filteredLiveries = useMemo(() => {
+        if (simFilter === 'all') return allUpdateEntries;
+        return allUpdateEntries.filter((e) => e.simulator === simFilter);
+    }, [allUpdateEntries, simFilter]);
 
     const totalPages = Math.max(1, Math.ceil(filteredLiveries.length / DOWNLOADS_PER_PAGE));
     const paginated = filteredLiveries.slice((page - 1) * DOWNLOADS_PER_PAGE, page * DOWNLOADS_PER_PAGE);
@@ -71,10 +89,11 @@ export const DownloadsPage = () => {
     }, [page, totalPages]);
 
     const handleUpdateAll = async () => {
-        if (availableUpdates.length === 0) return;
+        const toUpdate = simFilter === 'all' ? availableUpdates : availableUpdates.filter((u) => u.simulator === simFilter);
+        if (toUpdate.length === 0) return;
         setUpdatingAll(true);
         try {
-            for (const update of availableUpdates) {
+            for (const update of toUpdate) {
                 await updateLivery(update);
             }
         } finally {
@@ -82,29 +101,38 @@ export const DownloadsPage = () => {
         }
     };
 
+    const handleSimFilterChange = (filter: SimFilter) => {
+        setPage(1);
+        setSimFilter(filter);
+    };
+
+    const visibleUpdateCount = simFilter === 'all' ? availableUpdates.length : filterCounts[simFilter];
+
     return (
         <section className={styles.page}>
-            <header className={styles.pageHeader}>
+            <header id="updatePage" className={styles.pageHeader}>
                 <div className={styles.headerCopy}>
                     <h1>Livery Updates</h1>
                     <p className={styles.headerSubtitle}>
-                        {availableUpdates.length > 0 && (
+                        {allUpdateEntries.length > 0 ? (
                             <span className={styles.updateCount}>
-                                {availableUpdates.length} Update{availableUpdates.length === 1 ? '' : 's'} Available
+                                {allUpdateEntries.length} Update{allUpdateEntries.length === 1 ? '' : 's'} Available
                             </span>
+                        ) : (
+                            <span>All liveries are up to date</span>
                         )}
                     </p>
                 </div>
 
                 <div className={styles.headerActions}>
-                    {availableUpdates.length > 0 && (
+                    {visibleUpdateCount > 0 && (
                         <button
                             className={styles.updateAllButton}
                             onClick={handleUpdateAll}
                             disabled={updatingAll || checkingUpdates}
                         >
                             <Download size={18}/>
-                            {updatingAll ? 'Updating All…' : `Update All (${availableUpdates.length})`}
+                            {updatingAll ? 'Updating All…' : `Update All (${visibleUpdateCount})`}
                         </button>
                     )}
                     <button
@@ -118,6 +146,25 @@ export const DownloadsPage = () => {
                     </button>
                 </div>
             </header>
+
+            {allUpdateEntries.length > 0 && (filterCounts.FS20 > 0 || filterCounts.FS24 > 0) && (
+                <div className={styles.simFilterBar}>
+                    {(['all', 'FS20', 'FS24'] as SimFilter[]).map((f) => {
+                        const count = filterCounts[f];
+                        if (f !== 'all' && count === 0) return null;
+                        return (
+                            <button
+                                key={f}
+                                className={classNames(styles.simFilterChip, simFilter === f && styles.simFilterChipActive)}
+                                onClick={() => handleSimFilterChange(f)}
+                            >
+                                {f === 'all' ? 'All Simulators' : f === 'FS20' ? 'MSFS 2020' : 'MSFS 2024'}
+                                <span className={styles.simFilterCount}>{count}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
 
             <div className={styles.scrollContainer}>
                 <div className={styles.paginationBar}>
@@ -154,12 +201,12 @@ export const DownloadsPage = () => {
                 {paginated.length ? (
                     <div className={styles.grid}>
                         {paginated.map((entry) => {
-                            const liveryMatch = liveries.find((l) => l.name === entry.originalName);
-                            const update = updatesMap.get(entry.liveryId);
+                            const liveryMatch = liveries.find((l) => l.id === entry.liveryId || l.name === entry.originalName);
+                            const update = updatesMap.get(`${entry.liveryId}-${entry.simulator ?? ''}`);
 
                             return (
                                 <DownloadedLiveryCard
-                                    key={entry.installPath}
+                                    key={entry.installPath ?? `${entry.liveryId}-${entry.simulator}`}
                                     entry={entry}
                                     liveryMatch={liveryMatch}
                                     update={update}
