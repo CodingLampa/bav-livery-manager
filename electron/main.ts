@@ -227,7 +227,12 @@ function createWindow() {
         },
         show: false,
         title: APP_TITLE,
-        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+        titleBarStyle: 'hidden',
+        titleBarOverlay: {
+            color: '#111111',
+            symbolColor: '#ffffff',
+            height: 40
+        },
         icon: browserIcon
     });
 
