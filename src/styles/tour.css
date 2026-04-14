@@ -31,7 +31,7 @@
 .shepherd-title {
     color: var(--text);
     flex: 1 0 auto;
-    font-size: 16px;
+    font-size: 24px;
     font-weight: 600;
     margin: 0;
     padding: 0;
@@ -41,7 +41,9 @@
 .shepherd-cancel-icon,
 .shepherd-has-title .shepherd-content .shepherd-cancel-icon {
     background: transparent;
-    border: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 20px;
     color: var(--muted);
     cursor: pointer;
     flex-shrink: 0;
@@ -56,14 +58,15 @@
 
 .shepherd-cancel-icon:hover,
 .shepherd-has-title .shepherd-content .shepherd-cancel-icon:hover {
-    color: var(--text);
+    color: var(--danger);
     opacity: 1;
+    border-color: var(--danger);
 }
 
 /* ─── Body text ─── */
 .shepherd-text {
     color: var(--muted);
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.6;
     padding: 0;
 }
