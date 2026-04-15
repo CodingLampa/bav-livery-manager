@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 interface DownloadProgressProps {
     isCollapsed: boolean;
+    isExpanding?: boolean;
 }
 
 const formatBytes = (bytes: number): string => {
@@ -103,10 +104,14 @@ const DownloadsInformation = ({entries}: DownloadsInformation) => {
     )
 }
 
-export const DownloadProgress = ({isCollapsed}: DownloadProgressProps) => {
+export const DownloadProgress = ({isCollapsed, isExpanding}: DownloadProgressProps) => {
     const downloadStates = useLiveryStore((state) => state.downloadStates);
     const entries = Object.entries(downloadStates);
     const [isHovered, setIsHovered] = useState(false);
+
+    if (isExpanding) {
+        return null;
+    }
 
     if (isCollapsed) {
         return (

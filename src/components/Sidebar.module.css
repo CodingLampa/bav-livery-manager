@@ -14,7 +14,7 @@
 
 .sidePanelCollapsed {
     width: 50px;
-    padding: 20px 0;
+    padding: 20px 2px;
 }
 
 .collapseButton {
@@ -41,7 +41,7 @@
     align-items: center;
     gap: 12px;
     width: 100%;
-    padding: 12px 15px;
+    padding: 12px 12px;
     border: 1px solid transparent;
     border-radius: 6px;
     color: var(--muted);
@@ -111,4 +111,23 @@
 .panelFooterCollapsed {
     opacity: 0;
     transition: opacity 0.05s ease;
+}
+
+.badgeWrapper {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.3s;
+    margin-left: auto;
+}
+
+.sidePanelCollapsed .badgeWrapper {
+    opacity: 0;
+    transition: opacity 0s;
+}
+
+.collapseIcon {
+    transition: transform 0.3s ease;
+}
+
+.collapseIconRotated {
+    transform: rotate(180deg);
 }
