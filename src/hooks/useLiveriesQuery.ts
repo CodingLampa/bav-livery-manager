@@ -19,10 +19,10 @@ export const useLiveriesQuery = () => {
     const token = useAuthStore((state) => state.token);
     const logout = useAuthStore((state) => state.logout);
 
-    const query = useQuery<RemoteLiveryPayload>({
+    const query = useQuery({
         queryKey: ['liveries', token],
         enabled: Boolean(token),
-        queryFn: async () => {
+        queryFn: async (): Promise<RemoteLiveryPayload> => {
             if (!token) {
                 throw new Error('Missing auth token');
             }
@@ -42,6 +42,7 @@ export const useLiveriesQuery = () => {
 
             return response.json();
         },
+        select: (data) => (data.liveries ?? []).map((entry) => normalizeRemoteLivery(entry as Record<string, unknown>)),
         refetchOnWindowFocus: false,
         retry: 1,
         staleTime: 5 * 60 * 1000,
@@ -54,8 +55,7 @@ export const useLiveriesQuery = () => {
 
     useEffect(() => {
         if (!query.data) return;
-        const normalized = (query.data.liveries ?? []).map((entry) => normalizeRemoteLivery(entry as Record<string, unknown>));
-        useLiveryStore.setState({ liveries: normalized, error: null });
+        useLiveryStore.setState({ liveries: query.data, error: null });
     }, [query.data]);
 
     useEffect(() => {

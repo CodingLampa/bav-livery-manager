@@ -216,20 +216,31 @@ const FilterIcon = () => (
 );
 
 export const SearchPage = () => {
-    const liveries = useLiveryStore((state) => state.liveries);
+    const authToken = useAuthStore((state) => state.token);
+    const authError = useAuthStore((state) => state.error);
+    const clearAuthError = useAuthStore((state) => state.setError);
+
+    const { data: catalog, isFetching: catalogLoading, error: catalogError } = useCatalogQuery(authToken);
+    const { data: liveriesData, isFetching: liveriesFetching, error: listError } = useLiveriesQuery();
+    
+    const liveries = useMemo(() => liveriesData ?? [], [liveriesData]);
+
     const installedLiveries = useLiveryStore((state) => state.installedLiveries);
-    const loading = useLiveryStore((state) => state.loading);
-    const error = useLiveryStore((state) => state.error);
-    const clearError = useLiveryStore((state) => state.clearError);
     const settings = useLiveryStore((state) => state.settings);
     const downloadStates = useLiveryStore((state) => state.downloadStates);
     const handleDownload = useLiveryStore((state) => state.handleDownload);
     const cancelDownload = useLiveryStore((state) => state.cancelDownload);
     const handleUninstall = useLiveryStore((state) => state.handleUninstall);
     const isVariantInstalled = useLiveryStore((state) => state.isVariantInstalled);
-    const authToken = useAuthStore((state) => state.token);
-    const authError = useAuthStore((state) => state.error);
-    const clearAuthError = useAuthStore((state) => state.setError);
+    const storeError = useLiveryStore((state) => state.error);
+    const clearStoreError = useLiveryStore((state) => state.clearError);
+
+    const loading = catalogLoading || liveriesFetching;
+    const error = listError ? listError.message : (catalogError ? catalogError.message : storeError);
+    const clearError = () => {
+        if (storeError) clearStoreError();
+    };
+
     const [searchTerm, setSearchTerm] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [warningMessage, setWarningMessage] = useState<ReactNode | null>(null);
@@ -244,8 +255,6 @@ export const SearchPage = () => {
     const [filters, setFilters] = useState<FilterState>(() => createDefaultFilters(''));
     const [page, setPage] = useState(1);
     const [viewMode, setViewMode] = useState<'all' | 'installed'>('all');
-    const { data: catalog, isFetching: catalogLoading } = useCatalogQuery(authToken);
-    const { isFetching: liveriesFetching } = useLiveriesQuery();
 
     const fallbackOptions = useMemo(() => buildFallbackOptions(liveries), [liveries]);
 

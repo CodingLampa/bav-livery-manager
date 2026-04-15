@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { DownloadedLiveryCard } from '@/components/DownloadedLiveryCard';
 import { useLiveryStore } from '@/store/liveryStore';
+import { useLiveriesQuery } from '@/hooks/useLiveriesQuery';
 import type { InstalledLiveryRecord } from '@/types/electron-api';
 import type { LiveryUpdate } from '@/types/livery';
 import styles from './DownloadsPage.module.css';
@@ -20,7 +21,8 @@ const DOWNLOADS_PER_PAGE = 12;
 
 export const DownloadsPage = () => {
     const installedLiveries = useLiveryStore((state) => state.installedLiveries);
-    const liveries = useLiveryStore((state) => state.liveries);
+    const { data: liveriesData } = useLiveriesQuery();
+    const liveries = useMemo(() => liveriesData ?? [], [liveriesData]);
     const uninstallEntry = useLiveryStore((state) => state.uninstallEntry);
     const availableUpdates = useLiveryStore((state) => state.availableUpdates);
     const updateLivery = useLiveryStore((state) => state.updateLivery);

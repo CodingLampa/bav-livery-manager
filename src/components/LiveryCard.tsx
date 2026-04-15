@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DownloadProgress, Livery, Resolution, Simulator } from '@/types/livery';
 import { useLiveryStore } from '@/store/liveryStore';
+import { useLiveriesQuery } from '@/hooks/useLiveriesQuery';
 import styles from './LiveryCard.module.css';
 
 interface LiveryCardProps {
@@ -63,7 +64,8 @@ export const LiveryCard = ({
     onCancelDownload,
     onUninstall
 }: LiveryCardProps) => {
-    const allLiveries = useLiveryStore((state) => state.liveries);
+    const { data: liveriesData } = useLiveriesQuery();
+    const allLiveries = useMemo(() => liveriesData ?? [], [liveriesData]);
     const [simulator, setSimulator] = useState<Simulator>(defaultSimulator);
     const [busy, setBusy] = useState(false);
     const isResolutionForced = Boolean(resolutionFilter && resolutionFilter !== 'all');
