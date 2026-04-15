@@ -1,19 +1,20 @@
-import { NavLink } from 'react-router-dom';
-import { DownloadProgress } from './DownloadProgress';
-import { UpdateBadge } from './UpdateBadge';
-import { APP_VERSION } from '@/constants/appVersion';
+import {NavLink} from 'react-router-dom';
+import {DownloadProgress} from './DownloadProgress';
+import {UpdateBadge} from './UpdateBadge';
+import {APP_VERSION} from '@/constants/appVersion';
 import styles from './Sidebar.module.css';
-import { RotateCw } from 'react-feather';
+import {ArrowLeft, RotateCw} from 'react-feather';
+import {useState} from "react";
 
 const NAV_ITEMS = [
-    { label: 'Search', to: '/search', icon: 'search' },
-    { label: 'Updates', to: '/downloads', icon: 'download' },
-    { label: 'Settings', to: '/settings', icon: 'settings' }
+    {label: 'Search', to: '/search', icon: 'search'},
+    {label: 'Updates', to: '/downloads', icon: 'download'},
+    {label: 'Settings', to: '/settings', icon: 'settings'}
 ];
 
 const LOGO_URL = 'https://pub-505cce096f5e4523867626e0594f0337.r2.dev/InstallerLogo.png';
 
-const Icon = ({ name }: { name: string }) => {
+const Icon = ({name}: { name: string }) => {
     switch (name) {
         case 'download':
             return (
@@ -22,15 +23,16 @@ const Icon = ({ name }: { name: string }) => {
         case 'settings':
             return (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.18a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    <circle cx="12" cy="12" r="3"/>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.18a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                 </svg>
             );
         default:
             return (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
             );
     }
@@ -39,37 +41,44 @@ const Icon = ({ name }: { name: string }) => {
 const classNames = (...tokens: Array<string | false | undefined>) => tokens.filter(Boolean).join(' ');
 
 export const Sidebar = () => {
+
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
     return (
-        <aside className={styles.sidePanel}>
+        <aside className={classNames(styles.sidePanel, isCollapsed && styles.sidePanelCollapsed)}>
             <div className={styles.topSection}>
-                {/*<div className={styles.panelHeader}>*/}
-                {/*    <h2>Livery Manager</h2>*/}
-                {/*</div>*/}
+                <div onClick={() => setIsCollapsed(!isCollapsed)} className={styles.collapseButton}>
+                    <div className={classNames(styles.panelButton)}>
+                        <ArrowLeft/>
+                        {!isCollapsed && <span>Collapse</span>}
+                    </div>
+                </div>
                 <nav className={styles.panelButtons}>
                     {NAV_ITEMS.map((item) => (
                         <NavLink
                             key={item.to}
                             to={item.to}
-                            className={({ isActive }) =>
+                            className={({isActive}) =>
                                 classNames(styles.panelButton, isActive && styles.panelButtonActive)
                             }
                         >
-                            <Icon name={item.icon} />
-                            <span>{item.label}</span>
-                            {item.to === '/downloads' && <UpdateBadge />}
+                            <Icon name={item.icon}/>
+                            {!isCollapsed && <span>{item.label}</span>}
+                            {item.to === '/downloads' && <UpdateBadge/>}
                         </NavLink>
                     ))}
                 </nav>
             </div>
 
-            <div className={styles.middleSection}>
-                <DownloadProgress />
-            </div>
-
-            <div className={styles.footer}>
-                <div className={styles.versionBadge}>v{APP_VERSION}</div>
-                <div className={styles.sidebarLogo}>
-                    <img className={styles.logoImage} src={LOGO_URL} alt="Livery Manager" />
+            <div className={classNames(styles.panelFooter, isCollapsed && styles.panelFooterCollapsed)}>
+                <div className={styles.middleSection}>
+                    <DownloadProgress/>
+                </div>
+                <div className={styles.footer}>
+                    <div className={styles.versionBadge}>v{APP_VERSION}</div>
+                    <div className={styles.sidebarLogo}>
+                        <img className={styles.logoImage} src={LOGO_URL} alt="Livery Manager"/>
+                    </div>
                 </div>
             </div>
         </aside>
