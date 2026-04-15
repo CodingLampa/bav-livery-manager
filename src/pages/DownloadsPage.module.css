@@ -326,6 +326,13 @@
     min-height: 0;
 }
 
+.contentArea {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+
 .paginationBar {
     display: flex;
     justify-content: space-between;
@@ -398,7 +405,6 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     grid-auto-rows: min-content;
     gap: 20px;
-    overflow-y: auto;
 }
 
 .emptyState {

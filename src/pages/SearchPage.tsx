@@ -778,6 +778,7 @@ export const SearchPage = () => {
                     )}
                 </div>
 
+                <div className={styles.contentArea}>
                 {(loading || liveriesFetching) ? (
                     <div className={styles.grid}>
                         {Array.from({length: ITEMS_PER_PAGE}).map((_, i) => (
@@ -846,6 +847,7 @@ export const SearchPage = () => {
                         )}
                     </div>
                 )}
+                </div>
             </div>
         </section>
     );

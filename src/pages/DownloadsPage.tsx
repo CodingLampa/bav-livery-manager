@@ -200,6 +200,7 @@ export const DownloadsPage = () => {
                     )}
                 </div>
 
+                <div className={styles.contentArea}>
                 {paginated.length ? (
                     <div className={styles.grid}>
                         {paginated.map((entry) => {
@@ -228,6 +229,7 @@ export const DownloadsPage = () => {
                         <p>No liveries with pending updates.</p>
                     </div>
                 )}
+                </div>
             </div>
         </section>
     );
