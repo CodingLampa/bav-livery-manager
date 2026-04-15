@@ -200,7 +200,7 @@ export function InformationPage() {
         if (!liveryRegistration) return;
         let aborted = false;
         setAircraftError(null);
-        fetch(`https://api.bavirtual.co.uk/livery/registration/${liveryRegistration}?range=30`)
+        fetch(`https://api.bavirtual.co.uk/livery/registration/${liveryRegistration}?range=90`)
             .then(async (res) => {
                 if (!res.ok) throw new Error(`Status ${res.status}`);
                 return res.json();
@@ -250,7 +250,7 @@ export function InformationPage() {
         { label: "MTOW", value: formatNumber(aircraftInfo?.aircraft?.mtow, "kg") },
     ];
 
-    const topRoutes = (aircraftInfo?.routes ?? []).slice(0, 10);
+    const topRoutes = (aircraftInfo?.routes ?? []).slice(0, 200);
     const maxRouteCount = topRoutes.reduce((max, r) => Math.max(max, r.count), 0);
 
     const onDownload = async (livery: Livery, res: Resolution, { blocked }: { blocked?: boolean } = {}) => {
@@ -457,7 +457,7 @@ export function InformationPage() {
                 <div className={styles.informationContainer}>
                     <div className={styles.flightLogHeader}>
                         <p className={styles.sectionTitle}>Flight Log</p>
-                        <span className={styles.flightLogRange}>Last 30 days</span>
+                        <span className={styles.flightLogRange}>Last 90 days</span>
                     </div>
                     {aircraftError && <p className={styles.errorMessage}>Failed to load flight log: {aircraftError}</p>}
                     {!aircraftError && !aircraftInfo && <p className={styles.infoMessage}>Loading flight log…</p>}
