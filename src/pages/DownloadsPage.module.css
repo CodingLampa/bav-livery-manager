@@ -220,7 +220,7 @@
 .clearLink {
     background: none;
     border: none;
-    color: var(--accent, #5bbcff);
+    color: #5bbcff;
     cursor: pointer;
     font-size: 12px;
     margin-bottom: -2px;
@@ -399,8 +399,6 @@
     grid-auto-rows: min-content;
     gap: 20px;
     overflow-y: auto;
-    padding-right: 8px;
-    margin-right: -8px;
 }
 
 .emptyState {

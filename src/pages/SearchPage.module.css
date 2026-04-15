@@ -479,8 +479,6 @@
     grid-auto-rows: min-content;
     gap: 20px;
     overflow-y: auto;
-    padding-right: 8px;
-    margin-right: -8px;
     transition: grid-template-columns 0.5s ease-in-out;
 }
 
