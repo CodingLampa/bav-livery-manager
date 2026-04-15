@@ -3,8 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useLiveryStore } from '@/store/liveryStore';
 import { useAuthStore } from '@/store/authStore';
 import { Toast } from '@/components/Toast';
+import { AppUpdater } from '@/components/AppUpdater';
+import { Changelog } from '@/components/Changelog';
 import styles from './SettingsPage.module.css';
 import { BAVIcon } from "@/components/Icons/BAVIcon";
+import { Book, Folder, LogOut, Save, User, Zap } from 'react-feather';
+import { useTour } from '@/tour/useTour';
+import { MAIN_TOUR_STEPS } from "@/tour/steps";
 
 export const SettingsPage = () => {
     const settings = useLiveryStore((state) => state.settings);
@@ -23,6 +28,8 @@ export const SettingsPage = () => {
     useEffect(() => {
         setFormState(settings);
     }, [settings]);
+
+    const { startTour } = useTour(MAIN_TOUR_STEPS);
 
     const showToast = (message: string, type: 'success' | 'error' = 'success') => {
         setToast({ message, type });
@@ -111,26 +118,38 @@ export const SettingsPage = () => {
     return (
         <section className={styles.page}>
             <header className={styles.header}>
-                <div>
+                <div className={styles.headerContent}>
                     <h1 className={styles.title}>Settings</h1>
                     <p className={styles.description}>Manage your account and simulator paths.</p>
                 </div>
-            </header>
-
-            <div className={styles.accountCard}>
-                <div className={styles.accountHeader}>
-                    <div className={styles.accountAvatar}>
-                        {(fullName ?? userId ?? 'U').charAt(0).toUpperCase()}
+                <div className={styles.userSection}>
+                    <div className={styles.accountCard}>
+                        <div className={styles.accountHeader}>
+                            <div className={styles.accountInfo}>
+                                <p className={styles.accountName}>Get a quick tour</p>
+                                <p className={styles.accountId}>Learn what features are available</p>
+                            </div>
+                            <button type="button" className={styles.signOutButton} onClick={startTour}>
+                                <Book />
+                            </button>
+                        </div>
                     </div>
-                    <div className={styles.accountInfo}>
-                        <p className={styles.accountName}>{fullName ?? 'Unknown User'}</p>
-                        <p className={styles.accountId}>{userId ?? '—'}{rank ? ` • ${rank}` : ''}</p>
+                    <div className={styles.accountCard}>
+                        <div className={styles.accountHeader}>
+                            <div className={styles.accountAvatar}>
+                                <User />
+                            </div>
+                            <div className={styles.accountInfo}>
+                                <p className={styles.accountName}>{fullName ?? 'Unknown User'}</p>
+                                <p className={styles.accountId}>{userId ?? '—'}{rank ? ` • ${rank}` : ''}</p>
+                            </div>
+                            <button type="button" className={styles.signOutButton} onClick={handleSignOut}>
+                                <LogOut />
+                            </button>
+                        </div>
                     </div>
-                    <button type="button" className={styles.signOutButton} onClick={handleSignOut}>
-                        Sign out
-                    </button>
                 </div>
-            </div>
+            </header>
 
             {toast && (
                 <Toast
@@ -140,13 +159,14 @@ export const SettingsPage = () => {
                 />
             )}
 
-            <form className={styles.form} onSubmit={handleSubmit}>
+            <form id="simDirectorySection" className={styles.form} onSubmit={handleSubmit}>
                 <label className={styles.pathInput}>
                     <span className={styles.label}>MSFS 2020 Community Folder</span>
                     <div className={styles.inputRow}>
                         <input value={formState.msfs2020Path} onChange={(e) => setFormState((prev) => ({ ...prev, msfs2020Path: e.target.value }))} />
                         <button type="button" onClick={() => handleBrowse('msfs2020Path')}>
-                            Browse
+                            <Folder size={20}/>
+                            <p>Browse</p>
                         </button>
                     </div>
                 </label>
@@ -156,35 +176,48 @@ export const SettingsPage = () => {
                     <div className={styles.inputRow}>
                         <input value={formState.msfs2024Path} onChange={(e) => setFormState((prev) => ({ ...prev, msfs2024Path: e.target.value }))} />
                         <button type="button" onClick={() => handleBrowse('msfs2024Path')}>
-                            Browse
+                            <Folder size={20}/>
+                            <p>Browse</p>
                         </button>
                     </div>
                 </label>
-                <p className={styles.description}>Note: if you don't use the community folder, you can change the path to your custom community directory.</p>
+                <p className={styles.note}>Note: if you don't use the community folder, you can change the path to your custom community directory.</p>
                 <div className={styles.formActions}>
                     <button type="submit" className={styles.submitButton}>
+                        <Save size={20}/>
                         Save Settings
                     </button>
                     <button type="button" className={styles.detectButton} onClick={handleAutoDetect} disabled={detecting}>
+                        <Zap size={20}/>
                         {detecting ? 'Detecting…' : 'Auto-detect paths'}
                     </button>
                 </div>
             </form>
 
+            <div className={styles.bottomSection}>
+                <div className={styles.bottomSectionHeader}>
+                    <h2 className={styles.sectionTitle}>App Updates & Changelog</h2>
+                </div>
+                <div className={styles.bottomSectionContent}>
+                    <AppUpdater />
+                    <Changelog />
+                </div>
+            </div>
+
             <footer className={styles.footer}>
                 <p className={styles.footerText}>
-                    Created by <span className={styles.footerAuthor}>Pavel Sergienko</span>, inspired by <span className={styles.footerAuthor}>Laurie Cooper</span>, made for <span className={styles.footerAuthor}>BAVirtual Community</span>
+                    Created by <span className={styles.footerAuthor}>Pavel Sergienko</span>, inspired by <span className={styles.footerAuthor}>Laurie Cooper</span>, made for the <span className={styles.footerAuthor}>BAVirtual Community</span>
                 </p>
                 <p className={styles.secondFooterText}>© {new Date().getFullYear()} - BAVirtual Livery Manager</p>
                 <div className={styles.footerButtons}>
                     <button type="button" className={styles.footerButton} onClick={handleOpenGitHub}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
                         </svg>
                         View on GitHub
                     </button>
                     <button type="button" className={styles.footerButton} onClick={handleOpenBAV}>
-                        <BAVIcon width={26} height={26}/>
+                        <BAVIcon width={26} height={26} />
                         BAV website
                     </button>
                 </div>

@@ -1,0 +1,180 @@
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal {
+    background-color: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 85%;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    animation: slideUp 0.3s ease;
+}
+
+.banner {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    background-color: var(--card);
+}
+
+.content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: space-between;
+}
+
+.body {
+    padding-bottom: 26px;
+}
+
+.title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.description {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.btnSecondary,
+.btnPrimary {
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnSecondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.slide {
+    position: relative;
+    padding: 8px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.logo h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.subHeader {
+    margin-top: -4px;
+}
+
+.subHeader p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+    padding-left: 2px;
+}
+
+.slideGradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(230deg, rgba(0, 0, 0, 0) 40%, rgba(2, 17, 52, 0.6) 77%, rgb(43, 2, 26) 100%);
+    pointer-events: none;
+    width: 100%;
+}
+
+.slideDescription {
+    font-size: 14px;
+    color: var(--text);
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    padding: 6px 8px;
+}
+
+.slideDescription h3 {
+    margin: 0;
+    font-size: 22x;
+    font-weight: 600;
+}
+
+.slideDescription p {
+    margin: 0;
+    filter: brightness(70%);
+}
+
+.btnSecondary:hover {
+    background: var(--card);
+}
+
+.btnPrimary {
+    background: var(--primary);
+    color: var(--bg);
+    border: 1px solid transparent;
+}
+
+.btnPrimary:hover {
+    opacity: 0.85;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -22,17 +22,20 @@ export const UpdateNotification = () => {
     const checkForUpdates = useLiveryStore((state) => state.checkForUpdates);
     const checkingUpdates = useLiveryStore((state) => state.checkingUpdates);
     
-    const [expandedId, setExpandedId] = useState<string | null>(null);
-    const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
+    const [expandedKey, setExpandedKey] = useState<string | null>(null);
+    const [updatingKeys, setUpdatingKeys] = useState<Set<string>>(new Set());
+
+    const updateKey = (update: LiveryUpdate) => `${update.liveryId}-${update.simulator ?? ''}`;
 
     const handleUpdate = async (update: LiveryUpdate) => {
-        setUpdatingIds(prev => new Set(prev).add(update.liveryId));
+        const key = updateKey(update);
+        setUpdatingKeys(prev => new Set(prev).add(key));
         try {
             await updateLivery(update);
         } finally {
-            setUpdatingIds(prev => {
+            setUpdatingKeys(prev => {
                 const next = new Set(prev);
-                next.delete(update.liveryId);
+                next.delete(key);
                 return next;
             });
         }
@@ -43,8 +46,8 @@ export const UpdateNotification = () => {
         dismissUpdate(liveryId);
     };
 
-    const toggleExpand = (liveryId: string) => {
-        setExpandedId(expandedId === liveryId ? null : liveryId);
+    const toggleExpand = (key: string) => {
+        setExpandedKey(expandedKey === key ? null : key);
     };
 
     if (availableUpdates.length === 0 && !checkingUpdates) {
@@ -76,14 +79,15 @@ export const UpdateNotification = () => {
             {availableUpdates.length > 0 && (
                 <div className={styles.updateList}>
                     {availableUpdates.map((update) => {
-                        const isExpanded = expandedId === update.liveryId;
-                        const isUpdating = updatingIds.has(update.liveryId);
+                        const key = updateKey(update);
+                        const isExpanded = expandedKey === key;
+                        const isUpdating = updatingKeys.has(key);
 
                         return (
-                            <div key={update.liveryId} className={styles.updateItem}>
-                                <div 
+                            <div key={key} className={styles.updateItem}>
+                                <div
                                     className={styles.updateHeader}
-                                    onClick={() => toggleExpand(update.liveryId)}
+                                    onClick={() => toggleExpand(key)}
                                 >
                                     <div className={styles.updateInfo}>
                                         <span className={styles.liveryName}>{update.liveryName}</span>

@@ -44,6 +44,7 @@ interface LiveryState {
     dismissUpdate: (liveryId: string) => void;
     updateSettings: (partial: Partial<Settings>) => Promise<void>;
     handleDownload: (livery: Livery, resolution: Resolution, simulator: Simulator) => Promise<boolean>;
+    cancelDownload: (liveryId: string, liveryName: string) => Promise<void>;
     handleUninstall: (livery: Livery, resolution: Resolution, simulator: Simulator) => Promise<boolean>;
     uninstallByPath: (installPath: string) => Promise<boolean>;
     uninstallEntry: (entry: InstalledLiveryRecord) => Promise<boolean>;
@@ -110,9 +111,13 @@ export const useLiveryStore = create<LiveryState>((set, get) => {
             if (!api?.onDownloadProgress) return;
 
             api.onDownloadProgress((payload) => {
+                const existing = get().downloadStates[payload.liveryName];
+                if (!existing) return;
+
                 const newStates = {
                     ...get().downloadStates,
                     [payload.liveryName]: {
+                        ...existing,
                         progress: payload.progress,
                         downloaded: payload.downloaded,
                         total: payload.total,
@@ -291,24 +296,39 @@ export const useLiveryStore = create<LiveryState>((set, get) => {
                     changelog?: string | null;
                 }> };
 
-                // Map updates to installed liveries
-                const updates: LiveryUpdate[] = data.updates
+                // Map updates to installed liveries — one entry per (liveryId, simulator) pair
+                // so that liveries installed for both FS20 and FS24 both receive updates.
+                const updates: LiveryUpdate[] = [];
+                data.updates
                     .filter((u) => u.hasUpdate)
-                    .map((u) => {
-                        const installed = installedLiveries.find((e) => e.liveryId === u.liveryId);
+                    .forEach((u) => {
+                        const matchingInstalls = installedLiveries.filter((e) => e.liveryId === u.liveryId);
                         const livery = liveries.find((l) => l.id === u.liveryId);
-                        
-                        return {
-                            liveryId: u.liveryId,
-                            currentVersion: u.currentVersion,
-                            latestVersion: u.latestVersion || 'unknown',
-                            hasUpdate: true,
-                            changelog: u.changelog,
-                            liveryName: installed?.originalName || livery?.name || 'Unknown',
-                            installPath: installed?.installPath,
-                            resolution: installed?.resolution,
-                            simulator: installed?.simulator,
-                        };
+
+                        if (matchingInstalls.length === 0) {
+                            updates.push({
+                                liveryId: u.liveryId,
+                                currentVersion: u.currentVersion,
+                                latestVersion: u.latestVersion || 'unknown',
+                                hasUpdate: true,
+                                changelog: u.changelog,
+                                liveryName: livery?.name || 'Unknown',
+                            });
+                        } else {
+                            matchingInstalls.forEach((installed) => {
+                                updates.push({
+                                    liveryId: u.liveryId,
+                                    currentVersion: u.currentVersion,
+                                    latestVersion: u.latestVersion || 'unknown',
+                                    hasUpdate: true,
+                                    changelog: u.changelog,
+                                    liveryName: installed.originalName || livery?.name || 'Unknown',
+                                    installPath: installed.installPath,
+                                    resolution: installed.resolution,
+                                    simulator: installed.simulator,
+                                });
+                            });
+                        }
                     });
 
                 set({ 
@@ -424,8 +444,11 @@ export const useLiveryStore = create<LiveryState>((set, get) => {
             }));
 
             try {
-                const result = await api.downloadLivery(downloadRequestUrl, livery.id, livery.name, targetSimulator, resolution, authToken);
+                const result = await api.downloadLivery(downloadRequestUrl, livery.id, livery.name, livery.developerName, livery.aircraftProfileName, targetSimulator, resolution, authToken);
                 if (!result.success) {
+                    if (result.error === 'Download cancelled by user') {
+                        return false;
+                    }
                     throw new Error(result.error || 'Download failed');
                 }
 
@@ -455,6 +478,29 @@ export const useLiveryStore = create<LiveryState>((set, get) => {
                     }
                     
                     return { downloadStates: clone };
+                });
+            }
+        },
+
+        cancelDownload: async (liveryId: string, liveryName: string) => {
+            const api = getAPI();
+            if (!api?.cancelDownload) return;
+
+            try {
+                await api.cancelDownload(liveryId);
+            } catch (error) {
+                console.error('Failed to cancel download', error);
+            } finally {
+                set((state) => {
+                    const newStates = { ...state.downloadStates };
+                    delete newStates[liveryName];
+                    
+                    if (Object.keys(newStates).length === 0) {
+                        api?.setTaskbarProgress?.(-1);
+                        api?.setWindowTitle?.('BAVirtual Livery Manager');
+                    }
+                    
+                    return { downloadStates: newStates };
                 });
             }
         },

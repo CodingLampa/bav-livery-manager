@@ -5,7 +5,7 @@ import type { OpenDialogOptions } from 'electron';
 import type { AppContext, DownloadResult, Settings } from '../types';
 import { detectSimulatorPaths } from '../services/simulatorPaths';
 import { fetchRemoteLiveryList } from '../services/liveryData';
-import { downloadAndInstallLivery } from '../services/downloadManager';
+import { downloadAndInstallLivery, cancelDownload } from '../services/downloadManager';
 import { isSimulatorRunning } from '../services/simulatorMonitor';
 import { loadSettings, saveSettings } from '../services/settingsStore';
 import { 
@@ -50,6 +50,8 @@ export function registerIpcHandlers(appContext: AppContext) {
             downloadEndpoint: string,
             liveryId: string,
             liveryName: string,
+            liveryDeveloper: string,
+            aircraft: string,
             simulator: 'MSFS2020' | 'MSFS2024',
             resolution: string,
             authToken: string | null
@@ -67,6 +69,8 @@ export function registerIpcHandlers(appContext: AppContext) {
                 downloadEndpoint,
                 liveryId,
                 liveryName,
+                liveryDeveloper,
+                aircraft,
                 simulator,
                 resolution,
                 settings,
@@ -75,6 +79,10 @@ export function registerIpcHandlers(appContext: AppContext) {
         });
         }
     );
+
+    ipcMain.handle('cancel-download', async (_event, liveryId: string) => {
+        return cancelDownload(liveryId);
+    });
 
     ipcMain.handle('detect-sim-paths', async () => {
         return detectSimulatorPaths();
@@ -133,7 +141,6 @@ export function registerIpcHandlers(appContext: AppContext) {
                     }
                 } catch {
                     console.log(`Skipping inaccessible folder: ${item}`);
-                    continue;
                 }
             }
 

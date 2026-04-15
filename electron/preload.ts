@@ -4,6 +4,7 @@ import type { ElectronAPI } from '../src/types/electron-api';
 const INVOKE_CHANNELS = [
     'fetch-liveries',
     'download-livery',
+    'cancel-download',
     'uninstall-livery',
     'get-settings',
     'save-settings',
@@ -18,10 +19,14 @@ const INVOKE_CHANNELS = [
     'detect-sim-paths',
     'auth-open-panel',
     'set-taskbar-progress',
-    'set-window-title'
+    'set-window-title',
+    'check-for-app-update',
+    'download-app-update',
+    'install-app-update',
+    'get-app-version'
 ] as const;
 
-const ON_CHANNELS = ['download-progress', 'auth-token'] as const;
+const ON_CHANNELS = ['download-progress', 'auth-token', 'app-update-status'] as const;
 
 type InvokeChannel = typeof INVOKE_CHANNELS[number];
 type OnChannel = typeof ON_CHANNELS[number];
@@ -43,9 +48,13 @@ const api: ElectronAPI = {
         ensureInvokeChannel('fetch-liveries');
         return ipcRenderer.invoke('fetch-liveries', authToken ?? null);
     },
-    downloadLivery: (downloadEndpoint, liveryId, liveryName, simulator, resolution, authToken) => {
+    downloadLivery: (downloadEndpoint, liveryId, liveryName, liveryDeveloper, aircraft, simulator, resolution, authToken) => {
         ensureInvokeChannel('download-livery');
-        return ipcRenderer.invoke('download-livery', downloadEndpoint, liveryId, liveryName, simulator, resolution, authToken ?? null);
+        return ipcRenderer.invoke('download-livery', downloadEndpoint, liveryId, liveryName, liveryDeveloper, aircraft, simulator, resolution, authToken ?? null);
+    },
+    cancelDownload: (liveryId) => {
+        ensureInvokeChannel('cancel-download');
+        return ipcRenderer.invoke('cancel-download', liveryId);
     },
     uninstallLivery: (installPath) => {
         ensureInvokeChannel('uninstall-livery');
@@ -129,6 +138,35 @@ const api: ElectronAPI = {
                 callback(payload);
             });
         }
+    },
+    checkForAppUpdate: () => {
+        ensureInvokeChannel('check-for-app-update');
+        return ipcRenderer.invoke('check-for-app-update');
+    },
+    downloadAppUpdate: () => {
+        ensureInvokeChannel('download-app-update');
+        return ipcRenderer.invoke('download-app-update');
+    },
+    installAppUpdate: () => {
+        ensureInvokeChannel('install-app-update');
+        return ipcRenderer.invoke('install-app-update');
+    },
+    getAppVersion: () => {
+        ensureInvokeChannel('get-app-version');
+        return ipcRenderer.invoke('get-app-version');
+    },
+    onAppUpdateStatus: (callback) => {
+        ensureOnChannel('app-update-status');
+        ipcRenderer.removeAllListeners('app-update-status');
+
+        if (callback && typeof callback === 'function') {
+            ipcRenderer.on('app-update-status', (_event, data) => {
+                callback(data);
+            });
+        }
+    },
+    removeAppUpdateListeners: () => {
+        ipcRenderer.removeAllListeners('app-update-status');
     }
 };
 

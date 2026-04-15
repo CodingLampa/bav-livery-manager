@@ -1,6 +1,14 @@
+.windowWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
 .appShell {
     display: flex;
-    min-height: 100vh;
+    flex: 1;
     background: var(--bg);
     color: var(--text);
     overflow: hidden;
@@ -8,7 +16,7 @@
 
 .mainContent {
     flex: 1;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
     display: flex;
     flex-direction: column;

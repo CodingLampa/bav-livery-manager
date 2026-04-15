@@ -42,6 +42,8 @@ export interface DownloadProgress {
 export interface DetectedSimPaths {
     msfs2020Path: string | null;
     msfs2024Path: string | null;
+    msfs2020WasmPath: string | null;
+    msfs2024WasmPath: string | null;
 }
 
 export interface AppContext {

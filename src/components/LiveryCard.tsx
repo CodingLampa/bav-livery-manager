@@ -13,10 +13,11 @@ interface LiveryCardProps {
     downloadState?: DownloadProgress;
     isInstalled: (resolution: Resolution, simulator: Simulator) => boolean;
     onDownload: (resolution: Resolution, simulator: Simulator) => Promise<boolean>;
+    onCancelDownload?: () => void;
     onUninstall: (resolution: Resolution, simulator: Simulator) => Promise<boolean>;
 }
 
-const classNames = (...tokens: Array<string | false>) => tokens.filter(Boolean).join(' ');
+const classNames = (...tokens: Array<string | false | undefined>) => tokens.filter(Boolean).join(' ');
 
 const formatSize = (size?: string | number | null) => {
     if (typeof size === 'number') {
@@ -61,6 +62,7 @@ export const LiveryCard = ({
     downloadState,
     isInstalled,
     onDownload,
+    onCancelDownload,
     onUninstall
 }: LiveryCardProps) => {
     const allLiveries = useLiveryStore((state) => state.liveries);
@@ -70,6 +72,9 @@ export const LiveryCard = ({
     const showConflictToast = useCallback(() => {
         useLiveryStore.setState({ error: HIGH_RESOLUTION_CONFLICT_MESSAGE });
     }, []);
+
+    // Suppress unused lint — kept in interface for API compatibility
+    void defaultResolution;
 
     useEffect(() => {
         setSimulator(defaultSimulator);
@@ -102,6 +107,12 @@ export const LiveryCard = ({
 
         return Array.from(map.values()).sort((a, b) => a.resolution.localeCompare(b.resolution));
     }, [allLiveries, livery]);
+
+    const handleCancelDownload = () => {
+        if (onCancelDownload) {
+            onCancelDownload();
+        }
+    };
 
     const installedHighResolution = useMemo(() => {
         return peerResolutions.find((variant) => {
@@ -143,7 +154,7 @@ export const LiveryCard = ({
         <article className={styles.card} aria-label={`${livery.name} livery`}>
             <div className={styles.imageContainer}>
                 {downloadState && (
-                    <div className={classNames(styles.overlay, downloadState.extracting ? styles.overlayExtracting : '')}>
+                    <div className={classNames(styles.overlay, downloadState.extracting ? styles.overlayExtracting : undefined)}>
                         {downloadState.extracting ? (
                             <>
                                 <div className={styles.spinner} />
@@ -191,7 +202,7 @@ export const LiveryCard = ({
                 <dl className={styles.meta}>
                     <div>
                         <dt className={styles.metaLabel}>Aircraft</dt>
-                        <dd className={styles.metaValue}>{livery.aircraft || livery.aircraftProfileName || 'Unknown'}</dd>
+                        <dd className={styles.metaValue}>{livery.aircraftProfileName}</dd>
                     </div>
                     <div>
                         <dt className={styles.metaLabel}>Developer</dt>
@@ -215,62 +226,76 @@ export const LiveryCard = ({
                     </div>
                 </dl>
 
-                <div className={styles.selectionControls}>
-                    <div className={styles.selectionGroup}>
-                        <div className={styles.downloadRow}>
-                            {resolutionsToRender.map((variant) => {
-                                const res = variant.resolution;
-                                const sizeLabel = formatSize(variant.size || livery.size);
-                                const isInstalledVariant = isInstalled(res, simulator);
-                                const label = sizeLabel ? `${res} (${sizeLabel})` : res;
-                                const resolutionConflictLocked =
-                                    !isInstalledVariant &&
-                                    installedHighResolution &&
-                                    installedHighResolution.resolution !== res &&
-                                    isHighResolution(res);
-                                const nativeDisabled = disableDownload;
-                                const ariaDisabled = nativeDisabled || resolutionConflictLocked;
+                <div className={styles.downloadRow}>
+                    {resolutionsToRender.map((variant) => {
+                        const res = variant.resolution;
+                        const sizeLabel = formatSize(variant.size || livery.size);
+                        const isInstalledVariant = isInstalled(res, simulator);
+                        const label = sizeLabel ? `${res} (${sizeLabel})` : res;
+                        const resolutionConflictLocked =
+                            !isInstalledVariant &&
+                            installedHighResolution &&
+                            installedHighResolution.resolution !== res &&
+                            isHighResolution(res);
+                        const nativeDisabled = disableDownload;
+                        const ariaDisabled = nativeDisabled || resolutionConflictLocked;
+                        
+                        const isDownloadingThisResolution = downloadState && downloadState.resolution === res && downloadState.simulator === simulator;
 
-                                if (isInstalledVariant) {
-                                    return (
-                                        <div key={res} className={styles.downloadChip}>
-                                            <button
-                                                type="button"
-                                                className={styles.uninstallButton}
-                                                disabled={busy}
-                                                onClick={() => handleUninstall(res)}
-                                            >
-                                                <span className={styles.buttonIcon} aria-hidden>
-                                                    <UninstallIcon />
-                                                </span>
-                                                <span className={styles.btnLabelFull}>Uninstall {label}</span>
-                                                <span className={styles.btnLabelShort}>{label}</span>
-                                            </button>
-                                        </div>
-                                    );
-                                }
+                        if (isInstalledVariant) {
+                            return (
+                                <div key={res} className={styles.downloadChip}>
+                                    <button
+                                        type="button"
+                                        className={styles.uninstallButton}
+                                        disabled={busy}
+                                        onClick={() => handleUninstall(res)}
+                                    >
+                                        <span className={styles.buttonIcon} aria-hidden>
+                                            <UninstallIcon />
+                                        </span>
+                                        <span className={styles.btnLabelFull}>Uninstall {label}</span>
+                                        <span className={styles.btnLabelShort}>{label}</span>
+                                    </button>
+                                </div>
+                            );
+                        }
 
-                                return (
-                                    <div key={res} className={styles.downloadChip}>
-                                        <button
-                                            type="button"
-                                            className={styles.downloadButton}
-                                            disabled={nativeDisabled}
-                                            aria-disabled={ariaDisabled || undefined}
-                                            title={resolutionConflictLocked ? HIGH_RESOLUTION_CONFLICT_MESSAGE : undefined}
-                                            onClick={() => handleDownload(res, { blocked: resolutionConflictLocked })}
-                                        >
-                                            <span className={styles.buttonIcon} aria-hidden>
-                                                <DownloadIcon />
-                                            </span>
-                                            <span className={styles.btnLabelFull}>Download {label}</span>
-                                            <span className={styles.btnLabelShort}>{label}</span>
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
+                        if (isDownloadingThisResolution) {
+                            return (
+                                <div key={res} className={styles.downloadChip}>
+                                    <button
+                                        type="button"
+                                        className={styles.cancelDownloadButton}
+                                        onClick={handleCancelDownload}
+                                        style={{ marginTop: 0, width: '100%', justifyContent: 'center' }}
+                                    >
+                                        <span className={styles.btnLabelFull}>Cancel {label}</span>
+                                        <span className={styles.btnLabelShort}>Cancel</span>
+                                    </button>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <div key={res} className={styles.downloadChip}>
+                                <button
+                                    type="button"
+                                    className={styles.downloadButton}
+                                    disabled={nativeDisabled}
+                                    aria-disabled={ariaDisabled || undefined}
+                                    title={resolutionConflictLocked ? HIGH_RESOLUTION_CONFLICT_MESSAGE : undefined}
+                                    onClick={() => handleDownload(res, { blocked: resolutionConflictLocked })}
+                                >
+                                    <span className={styles.buttonIcon} aria-hidden>
+                                        <DownloadIcon />
+                                    </span>
+                                    <span className={styles.btnLabelFull}>Download {label}</span>
+                                    <span className={styles.btnLabelShort}>{label}</span>
+                                </button>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </article>

@@ -1,18 +1,21 @@
 import * as path from 'node:path';
-import { spawn } from 'node:child_process';
 import { Readable } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import * as fs from 'fs-extra';
-import AdmZip from 'adm-zip';
 import type { AppContext, DownloadProgress, DownloadResult, Settings } from '../types';
 import { fetchJson, fetchWithTimeout } from '../utils/network';
 import { recordInstallation } from './installedLiveriesStore';
 import { PANEL_BASE_URL } from '../../shared/constants';
+import extract from 'extract-zip';
+import { processLayout } from 'msfs-layout-generator';
+import { detectSimulatorPaths } from './simulatorPaths';
 
 interface DownloadLiveryOptions {
     downloadEndpoint: string;
     liveryId: string;
     liveryName: string;
+    liveryDeveloper: string;
+    aircraft: string;
     simulator: 'MSFS2020' | 'MSFS2024';
     resolution: string;
     settings: Settings;
@@ -26,16 +29,35 @@ const BACKOFF_MS = 800;
 
 const INVALID_FILENAME_CHARS = /[<>:"/\\|?*]+/g;
 
+const activeDownloads = new Map<string, AbortController>();
+
+export function cancelDownload(liveryId: string): boolean {
+    const controller = activeDownloads.get(liveryId);
+    if (controller) {
+        controller.abort(new Error('Download cancelled by user'));
+        activeDownloads.delete(liveryId);
+        return true;
+    }
+    return false;
+}
+
 async function retryAsync<T>(
     fn: () => Promise<T>,
     attempts: number,
-    backoffMs: number
+    backoffMs: number,
+    signal?: AbortSignal
 ): Promise<T> {
     let lastError: Error | undefined;
     for (let i = 0; i < attempts; i++) {
+        if (signal?.aborted) {
+            throw new Error('Download cancelled');
+        }
         try {
             return await fn();
         } catch (error) {
+            if (signal?.aborted) {
+                throw new Error('Download cancelled');
+            }
             lastError = error instanceof Error ? error : new Error(String(error));
             if (i < attempts - 1) {
                 await new Promise((resolve) => setTimeout(resolve, backoffMs * (i + 1)));
@@ -74,14 +96,14 @@ function deriveZipFilename(downloadUrl: string): string {
 }
 
 export async function downloadAndInstallLivery(options: DownloadLiveryOptions): Promise<DownloadResult> {
-    const { downloadEndpoint, liveryId, liveryName, simulator, resolution, settings, appContext, authToken } = options;
+    const { downloadEndpoint, liveryId, liveryName, liveryDeveloper, aircraft, simulator, resolution, settings, appContext, authToken } = options;
 
     if (!authToken) {
         return { success: false, error: 'Missing authentication token. Please sign in again.' };
     }
 
-    const signedDownload = await retryAsync(() => resolveDownloadEndpoint(downloadEndpoint, authToken), RESOLVE_ATTEMPTS, BACKOFF_MS);
-    const downloadUrl = signedDownload.downloadUrl;
+    const abortController = new AbortController();
+    activeDownloads.set(liveryId, abortController);
 
     const baseFolder = simulator === 'MSFS2024' && settings.msfs2024Path ? settings.msfs2024Path : settings.msfs2020Path;
 
@@ -93,13 +115,19 @@ export async function downloadAndInstallLivery(options: DownloadLiveryOptions): 
 
     await fs.ensureDir(baseFolder);
 
-    const zipFilename = deriveZipFilename(downloadUrl);
-    const folderName = zipFilename.replace(/\.zip$/i, '');
-    const outputPath = path.join(baseFolder, zipFilename);
-    const extractPath = path.join(baseFolder, folderName);
+    let outputPath = '';
+    let extractPath = '';
 
     try {
-        await retryAsync(() => downloadFile(downloadUrl, outputPath, (progress) => {
+        const signedDownload = await retryAsync(() => resolveDownloadEndpoint(downloadEndpoint, authToken, abortController.signal), RESOLVE_ATTEMPTS, BACKOFF_MS, abortController.signal);
+        const downloadUrl = signedDownload.downloadUrl;
+
+        const zipFilename = deriveZipFilename(downloadUrl);
+        const folderName = zipFilename.replace(/\.zip$/i, '');
+        outputPath = path.join(baseFolder, zipFilename);
+        extractPath = path.join(baseFolder, folderName);
+
+        await retryAsync(() => downloadFile(downloadUrl, outputPath, abortController.signal, (progress) => {
             const targetWindow = appContext.getMainWindow();
             if (!targetWindow || targetWindow.isDestroyed()) {
                 return;
@@ -128,7 +156,11 @@ export async function downloadAndInstallLivery(options: DownloadLiveryOptions): 
             targetWindow.setProgressBar(2, { mode: 'indeterminate' });
         }
 
-        await extractZipNonBlocking(outputPath, extractPath);
+        if (liveryDeveloper === 'PMDG') {
+            extractPath = await installPMDG(outputPath, baseFolder, simulator, aircraft, liveryDeveloper, liveryName, folderName);
+        } else {
+            await extractZip(outputPath, extractPath);
+        }
 
         // Record the installation in our local store (not in the livery folder)
         const simCode = simulator === 'MSFS2024' ? 'FS24' : 'FS20';
@@ -157,11 +189,23 @@ export async function downloadAndInstallLivery(options: DownloadLiveryOptions): 
             finalWindow.setProgressBar(-1);
         }
 
+        activeDownloads.delete(liveryId);
+
         return {
             success: true,
             path: extractPath
         };
     } catch (error) {
+        activeDownloads.delete(liveryId);
+
+        if (abortController.signal.aborted) {
+             const finalWindow = appContext.getMainWindow();
+             if (finalWindow && !finalWindow.isDestroyed()) {
+                 finalWindow.setProgressBar(-1);
+             }
+             return { success: false, error: 'Download cancelled by user' };
+        }
+
         console.error('Download process failed:', error);
 
         // Set taskbar to error state briefly, then clear
@@ -184,9 +228,12 @@ export async function downloadAndInstallLivery(options: DownloadLiveryOptions): 
     }
 }
 
-async function downloadFile(url: string, filePath: string, onProgress?: (progress: DownloadProgress) => void) {
+async function downloadFile(url: string, filePath: string, signal: AbortSignal, onProgress?: (progress: DownloadProgress) => void) {
+    if (signal.aborted) {
+        throw new Error('Download cancelled');
+    }
     const writer = fs.createWriteStream(filePath);
-    const response = await fetchWithTimeout(url, { method: 'GET' }, 30000);
+    const response = await fetchWithTimeout(url, { method: 'GET', signal }, 30000);
 
     if (!response.body) {
         writer.close();
@@ -230,6 +277,14 @@ async function downloadFile(url: string, filePath: string, onProgress?: (progres
             resolve();
         });
 
+        if (signal.aborted) {
+             handleError(new Error('Download cancelled'));
+        } else {
+             signal.addEventListener('abort', () => {
+                 handleError(new Error('Download cancelled'));
+             }, { once: true });
+        }
+
         nodeStream.pipe(writer);
     });
 }
@@ -241,53 +296,47 @@ interface SignedDownloadPayload {
     version?: string;
 }
 
-async function resolveDownloadEndpoint(endpoint: string, authToken: string | null): Promise<SignedDownloadPayload> {
+async function resolveDownloadEndpoint(endpoint: string, authToken: string | null, signal?: AbortSignal): Promise<SignedDownloadPayload> {
     const headers: HeadersInit = authToken ? { Authorization: `Bearer ${authToken}` } : {};
-    return fetchJson<SignedDownloadPayload>(endpoint, { headers }, 15000);
+    return fetchJson<SignedDownloadPayload>(endpoint, { headers, signal }, 15000);
 }
 
-async function extractZipNonBlocking(zipPath: string, extractPath: string) {
-    return new Promise<void>((resolve, reject) => {
-        const psCommand = [
-            '-NoProfile',
-            '-ExecutionPolicy', 'Bypass',
-            '-Command',
-            `& {
-                    param($ZipPath, $DestPath)
-                    Expand-Archive -LiteralPath $ZipPath -DestinationPath $DestPath -Force
-                    if ($?) { exit 0 } else { exit 1 }
-                } -ZipPath '${zipPath.replace(/'/g, "''")}' -DestPath '${extractPath.replace(/'/g, "''")}'`
-        ];
+async function installPMDG(zipPath: string, extractPath: string, simulator: 'MSFS2020' | 'MSFS2024', aircraft: string, liveryDeveloper: string, liveryName: string, folderName: string) {
+    const aircraftShort = aircraft === "B77W" ? "77w" : aircraft === "B772" ? "77er" : aircraft.toLowerCase();
+    const aircraftFull = aircraftShort === "77w" ? "777-300ER" : aircraftShort === "77er" ? "Boeing 777-200ER" : aircraft;
+    const pmdgLiveryFolderPath = `${extractPath}/pmdg-aircraft-${aircraftShort}-liveries`;
+    const exptractPathForPmdg = `${pmdgLiveryFolderPath}/SimObjects/Airplanes/${simulator === 'MSFS2024' ? 'PMDG ' + aircraftFull + '/liveries/pmdg' : ''}/${folderName}`;
 
-        const child = spawn('powershell.exe', psCommand);
+    const registation = liveryName.split(' ')[0];
 
-        child.on('close', (code) => {
-            if (code === 0) {
-                resolve();
-            } else {
-                console.log('PowerShell extraction failed, falling back to AdmZip');
-                extractWithAdmZip(zipPath, extractPath).then(resolve).catch(reject);
-            }
-        });
+    await extractZip(zipPath, exptractPathForPmdg);
 
-        child.on('error', (error) => {
-            console.log('PowerShell process failed, falling back to AdmZip:', error);
-            extractWithAdmZip(zipPath, extractPath).then(resolve).catch(reject);
-        });
-    });
+    await processLayout(pmdgLiveryFolderPath, { force: true });
+
+    const wasmFolder = simulator === "MSFS2020" ? (await detectSimulatorPaths()).msfs2020WasmPath : (await detectSimulatorPaths()).msfs2024WasmPath;
+
+    if (!wasmFolder) {
+        throw new Error(`Could not detect WASM folder for ${simulator}`);
+    }
+
+    const sourceFile = path.join(exptractPathForPmdg, "options.ini");
+    const destinationPath = path.join(wasmFolder + `/pmdg-aircraft-${aircraftShort}/work/Aircraft`, `${registation}.ini`);
+
+    console.log(sourceFile, destinationPath);
+
+    await fs.copy(sourceFile, destinationPath);
+
+    return exptractPathForPmdg;
 }
 
-function extractWithAdmZip(zipPath: string, extractPath: string) {
-    return new Promise<void>((resolve, reject) => {
-        setImmediate(() => {
-            try {
-                const zip = new AdmZip(zipPath);
-                zip.extractAllTo(extractPath, true);
-                resolve();
-            } catch (error) {
-                reject(error);
-            }
-        });
+function extractZip(zipPath: string, extractPath: string) {
+    return new Promise<void>(async (resolve, reject) => {
+        try {
+            await extract(zipPath, { dir: extractPath })
+            resolve();
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 
