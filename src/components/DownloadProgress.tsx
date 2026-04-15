@@ -1,5 +1,12 @@
 import { useLiveryStore } from '@/store/liveryStore';
 import styles from './DownloadProgress.module.css';
+import {Download} from "react-feather";
+import type {DownloadProgress as DownloadProgressType} from "@/types/livery";
+import { useState } from 'react';
+
+interface DownloadProgressProps {
+    isCollapsed: boolean;
+}
 
 const formatBytes = (bytes: number): string => {
     if (bytes === 0) return '0 B';
@@ -17,11 +24,11 @@ const DownloadIcon = () => (
     </svg>
 );
 
-export const DownloadProgress = () => {
-    const downloadStates = useLiveryStore((state) => state.downloadStates);
-    const entries = Object.entries(downloadStates);
+interface DownloadsInformation {
+    entries: [string, DownloadProgressType][]
+}
 
-    // Empty state - suggest downloading
+const DownloadsInformation = ({entries}: DownloadsInformation) => {
     if (entries.length === 0) {
         return (
             <div className={styles.container}>
@@ -46,7 +53,6 @@ export const DownloadProgress = () => {
 
             <div className={styles.list}>
                 {entries.map(([name, state]) => {
-                    // Build compact info string: G-EUUD A320 FS20 8K
                     const infoParts = [
                         state.registration,
                         state.aircraft,
@@ -94,5 +100,50 @@ export const DownloadProgress = () => {
                 })}
             </div>
         </div>
+    )
+}
+
+export const DownloadProgress = ({isCollapsed}: DownloadProgressProps) => {
+    const downloadStates = useLiveryStore((state) => state.downloadStates);
+    const entries = Object.entries(downloadStates);
+    const [isHovered, setIsHovered] = useState(false);
+
+    if (isCollapsed) {
+        return (
+            <div 
+                className={styles.minimizedWrapper}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                <div className={styles.containerMinimized}>
+                    <Download/>
+                    <span className={styles.badgeMinimized}
+                          style={entries.length > 0 ? {background: "#4a9eff"} : {}}>{entries.length}</span>
+                </div>
+                {isHovered && (
+                    <div className={styles.modal}>
+                        <DownloadsInformation entries={entries}/>
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    if (entries.length === 0) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.emptyState}>
+                    <div className={styles.emptyIcon}>
+                        <DownloadIcon />
+                    </div>
+                    <p className={styles.emptyText}>No active downloads</p>
+                    <p className={styles.emptyHint}>Browse the catalog to find liveries</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <DownloadsInformation entries={entries} />
     );
 };

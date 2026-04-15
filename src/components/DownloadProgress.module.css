@@ -9,6 +9,7 @@
 .emptyState {
     padding: 20px 16px;
     text-align: center;
+    z-index: 1000;
 }
 
 .emptyIcon {
@@ -61,7 +62,7 @@
 
 .badge {
     margin-left: auto;
-    background: var(--accent, #4a9eff);
+    background: #4a9eff;
     color: #fff;
     font-size: 0.65rem;
     font-weight: 700;
@@ -108,7 +109,7 @@
 .itemPercent {
     font-size: 0.7rem;
     font-weight: 600;
-    color: var(--accent, #4a9eff);
+    color: #4a9eff;
 }
 
 .itemInfo {
@@ -130,7 +131,7 @@
 
 .progressBar {
     height: 100%;
-    background: var(--accent, #4a9eff);
+    background: #4a9eff;
     border-radius: 2px;
     transition: width 0.3s ease;
 }
@@ -138,9 +139,9 @@
 .progressBarExtracting {
     background: linear-gradient(
         90deg,
-        var(--accent, #4a9eff) 0%,
+        #4a9eff 0%,
         #6bb8ff 50%,
-        var(--accent, #4a9eff) 100%
+        #4a9eff 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
@@ -173,4 +174,38 @@
 .extractingText {
     font-style: italic;
     opacity: 0.8;
+}
+
+.containerMinimized {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    flex-direction: column;
+}
+
+.badgeMinimized {
+    background: var(--card);
+    color: #fff;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    min-width: 18px;
+    text-align: center;
+}
+
+.minimizedWrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+.modal {
+    position: absolute;
+    bottom: -20px;
+    left: calc(100% + 15px);
+    width: 300px;
+    height: max-content;
+    z-index: 1000;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
 }

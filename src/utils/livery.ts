@@ -1,5 +1,5 @@
 import type { Livery, Resolution, Simulator } from '@/types/livery';
-import { PANEL_BASE_URL } from '../../shared/constants';
+import { PANEL_BASE_URL } from '@shared/constants';
 
 const asString = (value: unknown): string | null => {
     if (value === undefined || value === null) {
@@ -48,7 +48,7 @@ export const normalizeRemoteLivery = (entry: Record<string, unknown>): Livery =>
     };
 };
 
-export const ITEMS_PER_PAGE = 15;
+export const ITEMS_PER_PAGE = 24;
 
 const slugify = (input: string) => input.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'livery';
 

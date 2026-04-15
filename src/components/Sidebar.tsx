@@ -70,17 +70,15 @@ export const Sidebar = () => {
                 </nav>
             </div>
 
-            <div className={classNames(styles.panelFooter, isCollapsed && styles.panelFooterCollapsed)}>
                 <div className={styles.middleSection}>
-                    <DownloadProgress/>
+                    <DownloadProgress isCollapsed={isCollapsed}/>
                 </div>
-                <div className={styles.footer}>
+                <div className={classNames(styles.footer, isCollapsed && styles.panelFooterCollapsed)}>
                     <div className={styles.versionBadge}>v{APP_VERSION}</div>
                     <div className={styles.sidebarLogo}>
                         <img className={styles.logoImage} src={LOGO_URL} alt="Livery Manager"/>
                     </div>
                 </div>
-            </div>
         </aside>
     );
 };

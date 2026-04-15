@@ -9,7 +9,7 @@
     position: sticky;
     top: 0;
     transition: 0.3s ease;
-    overflow: hidden;
+    z-index: 1000;
 }
 
 .sidePanelCollapsed {
@@ -84,6 +84,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    transition: opacity 0.2s ease 0.25s;
 }
 
 .sidebarLogo {
@@ -105,14 +106,6 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--muted);
-}
-
-.panelFooter {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    transition: opacity 0.2s ease 0.25s;
 }
 
 .panelFooterCollapsed {
