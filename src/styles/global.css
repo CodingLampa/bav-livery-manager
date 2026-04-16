@@ -46,34 +46,43 @@ a {
 }
 
 /* ─── Scrollbar ─── */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.18) rgba(255, 255, 255, 0.04);
-}
-
 ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.04);
-    border-radius: 2px;
-    margin: 6px 0;
 }
 
 ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.18);
-    border-radius: 2px;
-    transition: background 0.2s ease;
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.38);
+    background: rgba(255, 255, 255, 0.3);
 }
 
-::-webkit-scrollbar-corner {
-    background: transparent;
+::-webkit-scrollbar-button {
+    background-color: rgba(255, 255, 255, 0.04);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 8px 8px;
+    width: 8px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-button:active {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+::-webkit-scrollbar-button:vertical:decrement {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath d='M2 0L4 4H0z' fill='rgba(255, 255, 255, 0.18)'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar-button:vertical:increment {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath d='M2 4L0 0h4z' fill='rgba(255, 255, 255, 0.18)'/%3E%3C/svg%3E");
 }
 
 dd {
