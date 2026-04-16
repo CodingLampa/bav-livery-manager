@@ -8,6 +8,8 @@ import log from 'electron-log';
 import { registerIpcHandlers } from './ipc/registerHandlers';
 import type { AppContext } from './types';
 
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
+
 const APP_TITLE = 'BAVirtual Livery Manager';
 const AUTH_PROTOCOL = 'bav-livery-manager';
 const ICON_BASENAME = 'BAV-Livery-Manager';
