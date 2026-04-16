@@ -11,6 +11,7 @@ import { useInitializeLiveryStore } from '@/store/liveryStore';
 import { useSessionHeartbeat } from '@/hooks/useSessionHeartbeat';
 import { useLiveriesQuery } from '@/hooks/useLiveriesQuery';
 import { useInstalledLiveriesQuery } from '@/hooks/useInstalledLiveriesQuery';
+import { InformationPage } from './pages/InformationPage';
 
 export const App = () => {
   useInitializeLiveryStore();
@@ -30,6 +31,7 @@ export const App = () => {
             <Route path="search" element={<SearchPage />} />
             <Route path="downloads" element={<DownloadsPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="information/:liveryId" element={<InformationPage/>}></Route>
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/search" replace />} />

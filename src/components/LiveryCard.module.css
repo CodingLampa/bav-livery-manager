@@ -157,8 +157,28 @@
     margin-bottom: 12px;
 }
 
-.developer {
-    color: var(--muted);
+.infoContainer {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    color: #ffffff;
+    width: fit-content;
+    margin-top: 4px;
+    transition: opacity 0.15s ease;
+}
+
+.infoContainer:hover {
+    opacity: 0.75;
+}
+
+.infoContainer:hover .infoButton {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.infoButton {
+    color: inherit;
     margin: 0;
     font-size: 12px;
     text-transform: uppercase;
