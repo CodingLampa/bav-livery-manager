@@ -328,7 +328,7 @@ async function resolveDownloadEndpoint(endpoint: string, authToken: string | nul
 
 async function installPMDG(zipPath: string, extractPath: string, simulator: 'MSFS2020' | 'MSFS2024', aircraft: string, liveryDeveloper: string, liveryName: string, folderName: string) {
     const aircraftShort = aircraft === "B77W" ? "77w" : aircraft === "B772" ? "77er" : aircraft.toLowerCase();
-    const aircraftFull = aircraftShort === "77w" ? "777-300ER" : aircraftShort === "77er" ? "Boeing 777-200ER" : aircraft;
+    const aircraftFull = aircraftShort === "77w" ? "777-300ER" : aircraftShort === "77er" ? "777-200ER" : aircraft;
     const pmdgLiveryFolderPath = `${extractPath}/pmdg-aircraft-${aircraftShort}-liveries`;
     const exptractPathForPmdg = `${pmdgLiveryFolderPath}/SimObjects/Airplanes/${simulator === 'MSFS2024' ? 'PMDG ' + aircraftFull + '/liveries/pmdg' : ''}/${folderName}`;
 
