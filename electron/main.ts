@@ -345,10 +345,19 @@ if (!gotLock) {
     });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
     console.log('App ready, creating window...');
 
     setupAutoUpdates();
+
+    if (isDev) {
+        try {
+            const name = await installExtension(REACT_DEVELOPER_TOOLS, { loadExtensionOptions: { allowFileAccess: true } });
+            console.log(`Added Extension: ${name}`);
+        } catch (err) {
+            console.log('An error occurred: ', err);
+        }
+    }
 
     createWindow();
     registerIpcHandlers(appContext);
@@ -372,14 +381,6 @@ app.whenReady().then(() => {
     } else {
         app.setAsDefaultProtocolClient(AUTH_PROTOCOL);
     }
-
-  installExtension(REACT_DEVELOPER_TOOLS,  { loadExtensionOptions: { allowFileAccess: true }})
-      .then((name) => {
-        console.log(`Added Extension: ${name}`);
-        // Create the window and the React application
-        createWindow();
-      })
-      .catch((err) => console.log('An error occurred: ', err));
 });
 
 app.on('window-all-closed', () => {
