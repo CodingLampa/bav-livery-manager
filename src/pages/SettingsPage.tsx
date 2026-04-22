@@ -10,6 +10,7 @@ import { BAVIcon } from "@/components/Icons/BAVIcon";
 import { Book, Folder, LogOut, Save, User, Zap } from 'react-feather';
 import { useTour } from '@/tour/useTour';
 import { MAIN_TOUR_STEPS } from "@/tour/steps";
+import {useThemeStore} from "@/store/themeStore";
 
 export const SettingsPage = () => {
     const settings = useLiveryStore((state) => state.settings);
@@ -19,6 +20,7 @@ export const SettingsPage = () => {
     const fullName = useAuthStore((state) => state.fullName);
     const rank = useAuthStore((state) => state.rank);
     const logout = useAuthStore((state) => state.logout);
+    const changeTheme = useThemeStore((state) => state.changeTheme);
     const navigate = useNavigate();
 
     const [formState, setFormState] = useState(settings);
@@ -107,7 +109,6 @@ export const SettingsPage = () => {
             return;
         }
 
-        // Fallback for web: open in new tab/window
         try {
             window.open(url, '_blank', 'noopener');
         } catch (err) {
@@ -148,6 +149,9 @@ export const SettingsPage = () => {
                             </button>
                         </div>
                     </div>
+                    <button type="button" onClick={changeTheme}>
+                        123
+                    </button>
                 </div>
             </header>
 

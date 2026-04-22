@@ -51,7 +51,6 @@
     border-color: #666666;
 }
 
-/* ─── Form ─── */
 .form {
     display: flex;
     flex-direction: column;
@@ -60,7 +59,7 @@
     border-radius: 6px;
     border: 1px solid var(--border);
     padding: 14px 16px;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 6px var(--shadow);
 }
 
 .pathInput {
@@ -99,8 +98,8 @@
 
 .inputRow button {
     padding: 7px 12px;
-    background: #2a2a2a;
-    color: #ffffff;
+    background: var(--buttons);
+    color: var(--text);
     border: 1px solid var(--border);
     border-radius: 4px;
     cursor: pointer;
@@ -117,8 +116,9 @@
 }
 
 .inputRow button:hover {
-    background: #3a3a3a;
-    border-color: #666666;
+    border-color: var(--bg);
+    background: var(--text);
+    color: var(--bg);
 }
 
 .formActions {
@@ -135,28 +135,28 @@
 }
 
 .submitButton {
-    padding: 6px 10px;
-    background: #2a2a2a;
-    color: #ffffff;
+    padding: 7px 12px;
+    background: var(--buttons);
+    color: var(--text);
     border: 1px solid var(--border);
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 0.78rem;
-    font-weight: 500;
     transition: all 0.2s ease;
 }
 
 .submitButton:hover {
-    background: #3a3a3a;
-    border-color: #666666;
+    border-color: var(--bg);
+    background: var(--text);
+    color: var(--bg);
 }
 
 .detectButton {
-    padding: 6px 10px;
-    background: transparent;
-    color: #ffffff;
-    border: 1px solid #17a61c;
-    border-radius: 5px;
+    padding: 7px 12px;
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--success);
+    border-radius: 4px;
     cursor: pointer;
     font-size: 0.78rem;
     transition: all 0.2s ease;
@@ -172,11 +172,7 @@
 }
 
 .accountCard {
-    /* background: linear-gradient(135deg, rgba(220, 53, 69, 0.06), var(--card));
-    border-radius: 6px;
-    border: 1px solid rgba(220, 53, 69, 0.25); */
     padding: 10px 14px;
-    /* box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15); */
     border: 1px solid var(--border);
     border-radius: 8px;
 }
