@@ -49,7 +49,7 @@ export const useThemeStore = create<ThemeStore>()(
         (set, get) => ({
             currentTheme: "dark",
             theme: darkTheme,
-            setTheme: (theme: "dark" | "light") => set({currentTheme: theme}),
+            setTheme: (theme: "dark" | "light") => set({currentTheme: theme, theme: theme === 'dark' ? darkTheme : whiteTheme}),
             changeTheme: () => {
                 const {currentTheme} = get();
                 if (currentTheme === "dark") {
