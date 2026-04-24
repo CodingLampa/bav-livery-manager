@@ -359,6 +359,14 @@ app.whenReady().then(async () => {
         }
     }
 
+    if (process.defaultApp) {
+        if (process.argv.length >= 2) {
+            app.setAsDefaultProtocolClient(AUTH_PROTOCOL, process.execPath, [path.resolve(process.argv[1])]);
+        }
+    } else {
+        app.setAsDefaultProtocolClient(AUTH_PROTOCOL);
+    }
+
     createWindow();
     registerIpcHandlers(appContext);
 
@@ -372,14 +380,6 @@ app.whenReady().then(async () => {
             event.preventDefault();
             forwardAuthPayload(url);
         });
-    }
-
-    if (process.defaultApp) {
-        if (process.argv.length >= 2) {
-            app.setAsDefaultProtocolClient(AUTH_PROTOCOL, process.execPath, [path.resolve(process.argv[1])]);
-        }
-    } else {
-        app.setAsDefaultProtocolClient(AUTH_PROTOCOL);
     }
 });
 
