@@ -8,21 +8,11 @@ import {useAuthStore} from '@/store/authStore';
 import {useCatalogQuery} from '@/hooks/useCatalogQuery';
 import {useLiveriesQuery} from '@/hooks/useLiveriesQuery';
 import {Toast} from '@/components/Toast';
+import {FilterPanel} from '@/components/FilterPanel';
+import {useFilterStore} from '@/store/filterStore';
+import type {FilterKey, FilterState} from '@/store/filterStore';
 import type {ReactNode} from 'react';
 import styles from './SearchPage.module.css';
-
-type FilterKey = 'developer' | 'aircraft' | 'engine' | 'simulator' | 'resolution' | 'category';
-
-const baseFilters: Record<FilterKey, string> = {
-    developer: 'all',
-    aircraft: 'all',
-    engine: 'all',
-    simulator: '',
-    resolution: 'all',
-    category: 'all'
-};
-
-const createDefaultFilters = (simulator: string): FilterState => ({...baseFilters, simulator});
 
 const uniqueStrings = (values: Array<string | null | undefined>) => {
     const set = new Set<string>();
@@ -40,7 +30,6 @@ interface ChipOption {
     hint?: string | null;
 }
 
-type FilterState = Record<FilterKey, string>;
 type ValueMaps = Record<FilterKey, Map<string, string>>;
 
 const UNCATEGORIZED = '__uncategorized';
@@ -211,11 +200,6 @@ const CloseIcon = () => (
     </svg>
 );
 
-const FilterIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-    </svg>
-);
 
 export const SearchPage = () => {
     const authToken = useAuthStore((state) => state.token);
@@ -242,8 +226,13 @@ export const SearchPage = () => {
         if (storeError) clearStoreError();
     };
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [showFilters, setShowFilters] = useState(false);
+    const filters = useFilterStore((s) => s.filters);
+    const setFilter = useFilterStore((s) => s.setFilter);
+    const searchTerm = useFilterStore((s) => s.searchTerm);
+    const setSearchTerm = useFilterStore((s) => s.setSearchTerm);
+    const viewMode = useFilterStore((s) => s.viewMode);
+    const setViewMode = useFilterStore((s) => s.setViewMode);
+    const storeClearFilters = useFilterStore((s) => s.clearFilters);
     const [warningMessage, setWarningMessage] = useState<ReactNode | null>(null);
 
     const pathEnabledSimulators = useMemo<Simulator[]>(() => {
@@ -253,9 +242,7 @@ export const SearchPage = () => {
         return sims;
     }, [settings.msfs2020Path, settings.msfs2024Path]);
 
-    const [filters, setFilters] = useState<FilterState>(() => createDefaultFilters(''));
     const [page, setPage] = useState(1);
-    const [viewMode, setViewMode] = useState<'all' | 'installed'>('all');
 
     const fallbackOptions = useMemo(() => buildFallbackOptions(liveries), [liveries]);
 
@@ -362,7 +349,7 @@ export const SearchPage = () => {
 
         if (!allowedSimulatorValues.length) {
             if (filters.simulator !== '') {
-                setFilters((prev) => ({...prev, simulator: ''}));
+                setFilter('simulator', '');
             }
             return;
         }
@@ -376,7 +363,7 @@ export const SearchPage = () => {
                 : allowedSimulatorValues[0];
 
         if (next !== filters.simulator) {
-            setFilters((prev) => ({...prev, simulator: next}));
+            setFilter('simulator', next);
         }
     }, [allowedSimulatorValues, filters.simulator, resolveSimulatorValue, settings.defaultSimulator, simulatorOptions]);
 
@@ -410,6 +397,32 @@ export const SearchPage = () => {
         }
         return badges;
     }, [filters, valueMaps]);
+
+    const filterCounts = useMemo(() => {
+        const empty = () => new Map<string, number>();
+        if (!hasSimulatorSelection) {
+            return {developer: empty(), aircraft: empty(), engine: empty(), category: empty(), totals: {developer: 0, aircraft: 0, engine: 0, category: 0}};
+        }
+        const countBy = (items: Livery[], keyFn: (l: Livery) => string | null | undefined) => {
+            const map = new Map<string, number>();
+            items.forEach((l) => {
+                const key = keyFn(l);
+                if (key != null && key !== '') map.set(key, (map.get(key) ?? 0) + 1);
+            });
+            return map;
+        };
+        const baseDev = filterLiveries(liveries, {...filters, developer: 'all'}, searchTerm, viewMode, installedLiveries);
+        const baseAir = filterLiveries(liveries, {...filters, aircraft: 'all'}, searchTerm, viewMode, installedLiveries);
+        const baseEng = filterLiveries(liveries, {...filters, engine: 'all'}, searchTerm, viewMode, installedLiveries);
+        const baseCat = filterLiveries(liveries, {...filters, category: 'all'}, searchTerm, viewMode, installedLiveries);
+        return {
+            developer: countBy(baseDev, (l) => l.developerId),
+            aircraft: countBy(baseAir, (l) => l.aircraftProfileId),
+            engine: countBy(baseEng, (l) => l.engine),
+            category: countBy(baseCat, (l) => l.categoryId ?? l.categoryName ?? (!(l.categoryId || l.categoryName) ? '__uncategorized' : null)),
+            totals: {developer: baseDev.length, aircraft: baseAir.length, engine: baseEng.length, category: baseCat.length},
+        };
+    }, [filters, hasSimulatorSelection, installedLiveries, liveries, searchTerm, viewMode]);
 
     const filteredLiveries = useMemo(
         () =>
@@ -458,7 +471,7 @@ export const SearchPage = () => {
     const endItem = Math.min(page * ITEMS_PER_PAGE, dedupedLiveries.length);
 
     const updateFilter = (key: FilterKey, value: string) => {
-        setFilters((prev) => ({...prev, [key]: value}));
+        setFilter(key, value);
         setPage(1);
     };
 
@@ -475,11 +488,7 @@ export const SearchPage = () => {
     };
 
     const clearAllFilters = () => {
-        setFilters((prev) => ({
-            ...baseFilters,
-            simulator: prev.simulator
-        }));
-        setSearchTerm('');
+        storeClearFilters();
         setPage(1);
     };
 
@@ -556,7 +565,7 @@ export const SearchPage = () => {
                     />
                 )}
 
-                {/* Search + Filters toolbar */}
+                {/* Search toolbar */}
                 <div className={styles.toolbar}>
                     <div className={styles.searchBar}>
                         <div className={styles.searchInputWrap}>
@@ -588,22 +597,9 @@ export const SearchPage = () => {
                                 </button>
                             )}
                         </div>
-                        <button
-                            id="filters"
-                            type="button"
-                            className={classNames(styles.filterToggle, (showFilters || activeFilterCount > 0) && styles.filterToggleActive)}
-                            onClick={() => setShowFilters(!showFilters)}
-                            aria-label="Toggle filters"
-                        >
-                            <FilterIcon/>
-                            <span>Filters</span>
-                            {activeFilterCount > 0 && (
-                                <span className={styles.filterCount}>{activeFilterCount}</span>
-                            )}
-                        </button>
                     </div>
 
-                    {/* Simulator selector - always visible */}
+                    {/* Simulator / Resolution / Filter dropdowns — all in one row */}
                     <div id="simulatorResolutionSelect" className={styles.simSelectorRow}>
                         {simulatorOptions.map((option) => {
                             const disabled = !pathEnabledSimulators.includes(option.label.toUpperCase() as Simulator);
@@ -634,6 +630,16 @@ export const SearchPage = () => {
                                 ))}
                             </>
                         )}
+                        <span className={styles.simDivider}/>
+                        <FilterPanel
+                            filters={filters}
+                            developerOptions={developerOptions}
+                            aircraftOptions={aircraftOptions}
+                            engineOptions={engineOptions}
+                            categoryOptions={categoryOptions}
+                            filterCounts={filterCounts}
+                            onFilterChange={updateFilter}
+                        />
                     </div>
                 </div>
             </div>
@@ -645,90 +651,29 @@ export const SearchPage = () => {
                 </p>
             )}
 
-            {/* Expandable filter panel */}
-            <div>
-                <div
-                    className={classNames(styles.filterPanel, showFilters && styles.filterPanelOpen, activeFilterBadges.length > 0 && showFilters && styles.filterPanelWithBadges)}>
-                    <div className={styles.filterGrid}>
-                        <div className={styles.filterField}>
-                            <label className={styles.filterLabel}>Developer</label>
-                            <select
-                                className={styles.filterSelect}
-                                value={filters.developer}
-                                onChange={(e) => updateFilter('developer', e.target.value)}
-                            >
-                                <option value="all">All developers</option>
-                                {developerOptions.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className={styles.filterField}>
-                            <label className={styles.filterLabel}>Aircraft</label>
-                            <select
-                                className={styles.filterSelect}
-                                value={filters.aircraft}
-                                onChange={(e) => updateFilter('aircraft', e.target.value)}
-                            >
-                                <option value="all">All aircraft</option>
-                                {aircraftOptions.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className={styles.filterField}>
-                            <label className={styles.filterLabel}>Category</label>
-                            <select
-                                className={styles.filterSelect}
-                                value={filters.category}
-                                onChange={(e) => updateFilter('category', e.target.value)}
-                            >
-                                <option value="all">All categories</option>
-                                {categoryOptions.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                        {engineOptions.length > 0 && (
-                            <div className={styles.filterField}>
-                                <label className={styles.filterLabel}>Engine</label>
-                                <select
-                                    className={styles.filterSelect}
-                                    value={filters.engine}
-                                    onChange={(e) => updateFilter('engine', e.target.value)}
-                                >
-                                    <option value="all">All engines</option>
-                                    {engineOptions.map((eng) => (
-                                        <option key={eng} value={eng}>{eng}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-                    </div>
+            {/* Active filter badges */}
+            {activeFilterBadges.length > 0 && (
+                <div className={styles.activeFilters}>
+                    {activeFilterBadges.map(({key, label, displayValue}) => (
+                        <button
+                            key={key}
+                            type="button"
+                            className={styles.filterBadge}
+                            onClick={() => updateFilter(key, 'all')}
+                            title={`Remove ${label} filter`}
+                        >
+                            <span className={styles.filterBadgeLabel}>{label}:</span>
+                            <span>{displayValue}</span>
+                            <CloseIcon/>
+                        </button>
+                    ))}
+                    {activeFilterBadges.length > 1 && (
+                        <button type="button" className={styles.clearAllLink} onClick={clearAllFilters}>
+                            Clear all
+                        </button>
+                    )}
                 </div>
-                {activeFilterBadges.length > 0 && (
-                    <div className={styles.activeFilters}>
-                        {activeFilterBadges.map(({key, label, displayValue}) => (
-                            <button
-                                key={key}
-                                type="button"
-                                className={styles.filterBadge}
-                                onClick={() => updateFilter(key, 'all')}
-                                title={`Remove ${label} filter`}
-                            >
-                                <span className={styles.filterBadgeLabel}>{label}:</span>
-                                <span>{displayValue}</span>
-                                <CloseIcon/>
-                            </button>
-                        ))}
-                        {activeFilterBadges.length > 1 && (
-                            <button type="button" className={styles.clearAllLink} onClick={clearAllFilters}>
-                                Clear all
-                            </button>
-                        )}
-                    </div>
-                )}
-            </div>
+            )}
 
             <div className={styles.scrollContainer}>
                 <div className={styles.paginationBar}>
