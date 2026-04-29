@@ -4,11 +4,9 @@
     justify-content: space-between;
     gap: 12px;
     padding: 8px 4px;
-    margin-bottom: 14px;
     flex-shrink: 0;
 }
 
-/* ─── Count label ─── */
 .count {
     font-size: 0.82rem;
     color: var(--muted);
@@ -21,14 +19,12 @@
     font-weight: 600;
 }
 
-/* ─── Nav strip ─── */
 .nav {
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
-/* ─── Arrow buttons ─── */
 .arrow {
     width: 32px;
     height: 32px;
@@ -55,7 +51,6 @@
     cursor: not-allowed;
 }
 
-/* ─── Page number buttons ─── */
 .pages {
     display: flex;
     align-items: center;
@@ -93,7 +88,6 @@
     cursor: default;
 }
 
-/* ─── Ellipsis ─── */
 .ellipsis {
     width: 28px;
     height: 32px;
